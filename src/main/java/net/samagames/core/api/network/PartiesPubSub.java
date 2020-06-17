@@ -25,14 +25,11 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PartiesPubSub implements IPacketsReceiver
-{
-
-    private ApiImplementation api;
+public class PartiesPubSub implements IPacketsReceiver {
+    private final ApiImplementation api;
     private final JoinManagerImplement implement;
 
-    public PartiesPubSub(ApiImplementation api, JoinManagerImplement implement)
-    {
+    public PartiesPubSub(ApiImplementation api, JoinManagerImplement implement) {
         this.api = api;
         this.implement = implement;
     }
@@ -43,14 +40,12 @@ public class PartiesPubSub implements IPacketsReceiver
 	 */
 
     @Override
-    public void receive(String channel, String packet)
-    {
+    public void receive(String channel, String packet) {
         UUID partyID = UUID.fromString(packet);
         Party party = api.getPartiesManager().getParty(partyID);
         JoinResponse response = implement.requestPartyJoin(party);
 
-        if (!response.isAllowed())
-        {
+        if (!response.isAllowed()) {
             TextComponent component = new TextComponent("Impossible de vous connecter : " + response.getReason());
             component.setColor(net.md_5.bungee.api.ChatColor.RED);
             SamaGamesAPI.get().getPlayerManager()

@@ -21,26 +21,21 @@ import java.util.Set;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-class WhiteListRefreshTask implements Runnable
-{
-
+class WhiteListRefreshTask implements Runnable {
     private final APIPlugin plugin;
     private final DatabaseConnector databaseConnector;
 
-    WhiteListRefreshTask(APIPlugin plugin, DatabaseConnector connector)
-    {
+    WhiteListRefreshTask(APIPlugin plugin, DatabaseConnector connector) {
         this.plugin = plugin;
         this.databaseConnector = connector;
     }
 
-    public void run()
-    {
+    public void run() {
         Jedis jedis = databaseConnector.getBungeeResource();
         Set<String> whiteList = jedis.smembers("proxys");
         jedis.close();
 
         plugin.refreshIps(whiteList);
     }
-
 }
 

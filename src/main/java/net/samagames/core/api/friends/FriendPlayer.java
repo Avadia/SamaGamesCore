@@ -2,6 +2,7 @@ package net.samagames.core.api.friends;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,46 +23,36 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class FriendPlayer {
+    private final UUID uuid;
 
-    private UUID uuid;
+    private final List<UUID> friends;
 
-    private List<UUID> friends;
-
-    public FriendPlayer(UUID uuid)
-    {
+    public FriendPlayer(UUID uuid) {
         this.uuid = uuid;
         this.friends = new ArrayList<>();
     }
 
-    public FriendPlayer(UUID uuid, UUID... players)
-    {
+    public FriendPlayer(UUID uuid, UUID... players) {
         this(uuid);
 
-        for (UUID friend : players)
-        {
-            friends.add(friend);
-        }
+        Collections.addAll(friends, players);
     }
 
-    public FriendPlayer(UUID uuid,List<UUID> players)
-    {
+    public FriendPlayer(UUID uuid, List<UUID> players) {
         this(uuid);
 
         friends.addAll(players);
     }
 
-    public void addFriend(UUID uuid)
-    {
+    public void addFriend(UUID uuid) {
         friends.add(uuid);
     }
 
-    public void removeFriend(UUID uuid)
-    {
+    public void removeFriend(UUID uuid) {
         friends.remove(uuid);
     }
 
-    public boolean areFriend(UUID uuid)
-    {
+    public boolean areFriend(UUID uuid) {
         return friends.contains(uuid);
     }
 

@@ -25,15 +25,13 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class EconomyManager
-{
+public class EconomyManager {
     private final ApiImplementation api;
-    private List<PromotionsBean> promotions;
+    private final List<PromotionsBean> promotions;
 
     private final BukkitTask discountTask;
 
-    public EconomyManager(ApiImplementation api)
-    {
+    public EconomyManager(ApiImplementation api) {
         this.api = api;
         this.promotions = new ArrayList<>();
 
@@ -41,8 +39,7 @@ public class EconomyManager
         discountTask = api.getPlugin().getServer().getScheduler().runTaskTimerAsynchronously(this.api.getPlugin(), this::reload, 0L, 36000L);
     }
 
-    public void reload()
-    {
+    public void reload() {
         promotions.clear();
         try {
             promotions.addAll(api.getGameServiceManager().getAllActivePromotions());
@@ -51,8 +48,7 @@ public class EconomyManager
         }
     }
 
-    public Multiplier getGroupMultiplier(UUID player)
-    {
+    public Multiplier getGroupMultiplier(UUID player) {
         PlayerData user = api.getPlayerManager().getPlayerData(player);
         int groupMultiplier = 1;
 
@@ -65,18 +61,15 @@ public class EconomyManager
         return new Multiplier(groupMultiplier, 0);
     }
 
-    public Multiplier getPromotionMultiplier( int type, int game)
-    {
+    public Multiplier getPromotionMultiplier(int type, int game) {
         Multiplier result = new Multiplier(1, 0);
         long currentTime = System.currentTimeMillis();
-        for (PromotionsBean promotion : promotions)
-        {
+        for (PromotionsBean promotion : promotions) {
             if (promotion.getPromotionType() == -1 || promotion.getPromotionType() == type) //Check type (global coins or stars)
             {
                 if ((promotion.getGame() == game || promotion.getGame() == -1) //Check Game number
                         && promotion.getStartDate().getTime() < currentTime
-                        && promotion.getEndDate().getTime() > currentTime)
-                {
+                        && promotion.getEndDate().getTime() > currentTime) {
                     Multiplier multiplier = new Multiplier(promotion.getMultiplier(),
                             promotion.getEndDate().getTime(),
                             promotion.getMessage());
@@ -89,24 +82,18 @@ public class EconomyManager
         return result;
     }
 
-    public String getCreditMessage(long amount, int type, String reason, Multiplier multiplier)
-    {
+    public String getCreditMessage(long amount, int type, String reason, Multiplier multiplier) {
         StringBuilder builder = new StringBuilder();
         builder.append(type == 0 ? ChatColor.GOLD + "+" + amount + " pièces (" + reason + ChatColor.GOLD + ")" : ChatColor.AQUA + "+" + amount + " étoiles (" + reason + ChatColor.AQUA + ")");
 
-        if (multiplier != null)
-        {
-            for (String multCause : multiplier.getCombinedData().keySet())
-            {
+        if (multiplier != null) {
+            for (String multCause : multiplier.getCombinedData().keySet()) {
                 if (multCause == null || multiplier.getCombinedData().get(multCause) == 1)
                     continue;
 
-                if(multCause.isEmpty())
-                {
-                    builder.append(" [* " + multiplier.getCombinedData().get(multCause) + "]");
-                }
-                else
-                {
+                if (multCause.isEmpty()) {
+                    builder.append(" [* ").append(multiplier.getCombinedData().get(multCause)).append("]");
+                } else {
                     builder.append(" [* ").append(multiplier.getCombinedData().get(multCause)).append(" ").append(multCause).append("]");
                 }
             }
@@ -115,8 +102,7 @@ public class EconomyManager
         return builder.toString();
     }
 
-    public void onShutdown()
-    {
+    public void onShutdown() {
         discountTask.cancel();
     }
 }

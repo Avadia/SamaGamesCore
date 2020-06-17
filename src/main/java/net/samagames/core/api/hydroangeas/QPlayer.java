@@ -18,34 +18,28 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class QPlayer
-{
+public class QPlayer {
     private UUID uuid;
     private int priority;
 
-    public QPlayer(UUID uuid, int priority)
-    {
+    public QPlayer(UUID uuid, int priority) {
         this.uuid = uuid;
         this.priority = priority;
     }
 
-    public UUID getUUID()
-    {
+    public UUID getUUID() {
         return this.uuid;
     }
 
-    public void setUUID(UUID uuid)
-    {
+    public void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
 
-    public int getPriority()
-    {
+    public int getPriority() {
         return this.priority;
     }
 
-    public void setPriority(int priority)
-    {
+    public void setPriority(int priority) {
         this.priority = priority;
     }
 }

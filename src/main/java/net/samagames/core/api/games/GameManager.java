@@ -2,9 +2,10 @@ package net.samagames.core.api.games;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.*;
-import net.samagames.api.games.themachine.ICoherenceMachine;
 import net.samagames.api.games.pearls.IPearlManager;
+import net.samagames.api.games.themachine.ICoherenceMachine;
 import net.samagames.api.parties.IParty;
+import net.samagames.core.APIPlugin;
 import net.samagames.core.ApiImplementation;
 import net.samagames.core.api.games.pearls.PearlManager;
 import net.samagames.core.api.games.themachine.CoherenceMachineImpl;
@@ -37,14 +38,14 @@ import java.util.logging.Level;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class GameManager implements IGameManager
-{
+public class GameManager implements IGameManager {
     private final ApiImplementation api;
 
     private final ConcurrentHashMap<UUID, Long> playerDisconnectedTime;
     private final GameProperties gameProperties;
     private IGameStatisticsHelper gameStatisticsHelper;
-    private IPearlManager pearlManager;
+    private final IPearlManager pearlManager;
+    @SuppressWarnings("rawtypes")
     private Game game;
     private int maxReconnectTime;
     private boolean freeMode;
@@ -53,8 +54,7 @@ public class GameManager implements IGameManager
     private long startTimestamp;
     private long endTimestamp;
 
-    public GameManager(ApiImplementation api)
-    {
+    public GameManager(ApiImplementation api) {
         this.api = api;
         this.game = null;
 
@@ -70,8 +70,7 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public void registerGame(Game game)
-    {
+    public void registerGame(Game game) {
         if (this.game != null)
             throw new IllegalStateException("A game is already registered!");
 
@@ -90,32 +89,25 @@ public class GameManager implements IGameManager
         //Check for reconnection can be started when we change the mas reconnection time but fuck it
         this.api.getPlugin().getExecutor().scheduleAtFixedRate(() ->
         {
-            for (Map.Entry<UUID, Long> entry : this.playerDisconnectedTime.entrySet())
-            {
-                if (!isReconnectAllowed(entry.getKey()))
-                {
+            for (Map.Entry<UUID, Long> entry : this.playerDisconnectedTime.entrySet()) {
+                if (!isReconnectAllowed(entry.getKey())) {
                     onPlayerReconnectTimeOut(Bukkit.getOfflinePlayer(entry.getKey()), false);
                 }
             }
         }, 1L, 30L, TimeUnit.SECONDS);
 
-        this.api.getPlugin().log(Level.INFO, "Registered game '" + game.getGameName() + "' successfuly!");
+        APIPlugin.log(Level.INFO, "Registered game '" + game.getGameName() + "' successfuly!");
     }
 
-    public void rejoinTemplateQueue(Player p)
-    {
+    public void rejoinTemplateQueue(Player p) {
         this.api.getPlugin().getServer().getScheduler().runTaskAsynchronously(this.api.getPlugin(), () ->
         {
             IParty party = SamaGamesAPI.get().getPartiesManager().getPartyForPlayer(p.getUniqueId());
 
-            if(party == null)
-            {
+            if (party == null) {
                 this.api.getHydroangeasManager().addPlayerToQueue(p.getUniqueId(), getGameProperties().getTemplateID());
-            }
-            else
-            {
-                if(!party.getLeader().equals(p.getUniqueId()))
-                {
+            } else {
+                if (!party.getLeader().equals(p.getUniqueId())) {
                     p.sendMessage(ChatColor.RED + "Vous n'êtes pas le leader de votre partie, vous ne pouvez donc pas l'ajouter dans une file d'attente.");
                     return;
                 }
@@ -126,10 +118,8 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public void kickPlayer(Player p, String msg)
-    {
-        if (!this.api.getPlugin().isEnabled())
-        {
+    public void kickPlayer(Player p, String msg) {
+        if (!this.api.getPlugin().isEnabled()) {
             p.kickPlayer(msg);
             return;
         }
@@ -141,16 +131,14 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public void onPlayerDisconnect(Player player)
-    {
+    public void onPlayerDisconnect(Player player) {
         GamePlayer gamePlayer = this.game.getPlayer(player.getUniqueId());
 
         if (this.maxReconnectTime > 0
                 && gamePlayer != null
                 && !this.game.isModerator(gamePlayer.getPlayerIfOnline())
                 && !gamePlayer.isSpectator()
-                && this.game.getStatus() == Status.IN_GAME)
-        {
+                && this.game.getStatus() == Status.IN_GAME) {
             long currentTime = System.currentTimeMillis();
 
             this.playerDisconnectedTime.put(player.getUniqueId(), currentTime);
@@ -169,8 +157,7 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public void onPlayerReconnect(Player player)
-    {
+    public void onPlayerReconnect(Player player) {
         this.game.handleReconnect(player);
 
         Long decoTime = this.playerDisconnectedTime.get(player.getUniqueId());
@@ -182,14 +169,12 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public void onPlayerReconnectTimeOut(OfflinePlayer player, boolean silent)
-    {
+    public void onPlayerReconnectTimeOut(OfflinePlayer player, boolean silent) {
         this.playerDisconnectedTime.remove(player.getUniqueId());
         this.game.handleReconnectTimeOut(player, silent);
     }
 
-    public void refreshArena()
-    {
+    public void refreshArena() {
         if (this.game == null)
             throw new IllegalStateException("Can't refresh arena because the arena is null!");
 
@@ -197,14 +182,12 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public void startTimer()
-    {
+    public void startTimer() {
         this.startTimestamp = System.currentTimeMillis();
     }
 
     @Override
-    public void stopTimer()
-    {
+    public void stopTimer() {
         this.endTimestamp = System.currentTimeMillis();
 
         this.api.getPlugin().getExecutor().execute(() ->
@@ -213,60 +196,31 @@ public class GameManager implements IGameManager
                     this.gameProperties.getTemplateID(),
                     this.api.getServerName(),
                     Bukkit.getIp(),
-                    new UUID(0,0),
+                    new UUID(0, 0),
                     this.startTimestamp,
                     System.currentTimeMillis() - this.startTimestamp);
 
-            try
-            {
+            try {
                 this.api.getGameServiceManager().createHostRecord(hostStatisticsBean);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
     @Override
-    public void setMaxReconnectTime(int minutes)
-    {
-        this.maxReconnectTime = minutes;
-    }
-
-    @Override
-    public void setFreeMode(boolean freeMode)
-    {
-        this.freeMode = freeMode;
-    }
-
-    @Override
-    public void setLegacyPvP(boolean legacyPvP)
-    {
-        this.legacyPvP = legacyPvP;
-    }
-
-    @Override
-    public void setGameStatisticsHelper(IGameStatisticsHelper gameStatisticsHelper)
-    {
-        this.gameStatisticsHelper = gameStatisticsHelper;
-    }
-
-    @Override
-    public void setKeepPlayerCache(boolean keepIt)
-    {
+    public void setKeepPlayerCache(boolean keepIt) {
         this.api.setKeepCache(keepIt);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
-    public Game getGame()
-    {
+    public Game getGame() {
         return this.game;
     }
 
     @Override
-    public Status getGameStatus()
-    {
+    public Status getGameStatus() {
         if (this.game == null)
             return null;
 
@@ -274,8 +228,7 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public ICoherenceMachine getCoherenceMachine()
-    {
+    public ICoherenceMachine getCoherenceMachine() {
         if (this.game == null)
             throw new NullPointerException("Can't get CoherenceMachine because game is null!");
 
@@ -286,68 +239,77 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public GameProperties getGameProperties()
-    {
+    public GameProperties getGameProperties() {
         return this.gameProperties;
     }
 
     @Override
-    public GameGuiManager getGameGuiManager()
-    {
+    public GameGuiManager getGameGuiManager() {
         return new GameGuiManager();
     }
 
     @Override
-    public int getMaxReconnectTime()
-    {
+    public int getMaxReconnectTime() {
         return this.maxReconnectTime;
     }
 
     @Override
-    public long getGameTime()
-    {
+    public void setMaxReconnectTime(int minutes) {
+        this.maxReconnectTime = minutes;
+    }
+
+    @Override
+    public long getGameTime() {
         return this.endTimestamp - this.startTimestamp;
     }
 
     @Override
-    public IGameStatisticsHelper getGameStatisticsHelper()
-    {
+    public IGameStatisticsHelper getGameStatisticsHelper() {
         return this.gameStatisticsHelper;
     }
 
     @Override
-    public IPearlManager getPearlManager()
-    {
+    public void setGameStatisticsHelper(IGameStatisticsHelper gameStatisticsHelper) {
+        this.gameStatisticsHelper = gameStatisticsHelper;
+    }
+
+    @Override
+    public IPearlManager getPearlManager() {
         return this.pearlManager;
     }
 
     @Override
-    public boolean isWaited(UUID uuid)
-    {
+    public boolean isWaited(UUID uuid) {
         return this.playerDisconnectedTime.containsKey(uuid);
     }
 
     @Override
-    public boolean isFreeMode()
-    {
+    public boolean isFreeMode() {
         return this.freeMode;
     }
 
     @Override
-    public boolean isLegacyPvP()
-    {
+    public void setFreeMode(boolean freeMode) {
+        this.freeMode = freeMode;
+    }
+
+    @Override
+    public boolean isLegacyPvP() {
         return this.legacyPvP;
     }
 
     @Override
-    public boolean isReconnectAllowed(Player player)
-    {
+    public void setLegacyPvP(boolean legacyPvP) {
+        this.legacyPvP = legacyPvP;
+    }
+
+    @Override
+    public boolean isReconnectAllowed(Player player) {
         return this.isReconnectAllowed(player.getUniqueId());
     }
 
     @Override
-    public boolean isReconnectAllowed(UUID player)
-    {
+    public boolean isReconnectAllowed(UUID player) {
         if (this.maxReconnectTime <= 0)
             return false;
 
@@ -357,8 +319,7 @@ public class GameManager implements IGameManager
     }
 
     @Override
-    public boolean isKeepingPlayerCache()
-    {
+    public boolean isKeepingPlayerCache() {
         return this.api.isKeepCache();
     }
 }

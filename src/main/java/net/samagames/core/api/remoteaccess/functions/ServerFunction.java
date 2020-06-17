@@ -3,7 +3,6 @@ package net.samagames.core.api.remoteaccess.functions;
 import net.samagames.core.api.remoteaccess.annotations.RemoteMethod;
 import net.samagames.core.api.remoteaccess.annotations.RemoteObject;
 import net.samagames.tools.Reflection;
-import org.bukkit.Bukkit;
 
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 import java.lang.reflect.Field;
@@ -27,43 +26,34 @@ import java.lang.reflect.Method;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 @RemoteObject(description = "Internal server Management")
-public class ServerFunction
-{
+public class ServerFunction {
     private static Method getServerMethod;
     private static Field recentTpsField;
 
+    static {
+        try {
+            Class<?> minecraftServerClass = Reflection.getNMSClass("MinecraftServer");
+            getServerMethod = minecraftServerClass.getMethod("getServer");
+            recentTpsField = minecraftServerClass.getField("recentTps");
+        } catch (NoSuchFieldException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
     @RemoteMethod(description = "Get current server tps", impact = ModelMBeanOperationInfo.ACTION)
-    public double tps()
-    {
-        try
-        {
+    public double tps() {
+        try {
             double result = 0;
             double[] recentTps = (double[]) recentTpsField.get(getServerMethod.invoke(null));
 
-            for(double one : recentTps)
+            for (double one : recentTps)
                 result += one;
 
             return result / recentTps.length;
-        }
-        catch (IllegalAccessException | InvocationTargetException e)
-        {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
 
         return 0;
-    }
-
-    static
-    {
-        try
-        {
-            Class<?> minecraftServerClass = Reflection.getNMSClass("MinecraftServer");
-            getServerMethod = minecraftServerClass.getMethod("getServer");
-            recentTpsField = minecraftServerClass.getField("recentTps");
-        }
-        catch (NoSuchFieldException | NoSuchMethodException e)
-        {
-            e.printStackTrace();
-        }
     }
 }

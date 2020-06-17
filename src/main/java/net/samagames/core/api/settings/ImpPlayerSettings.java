@@ -26,8 +26,8 @@ import org.bukkit.entity.Player;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class ImpPlayerSettings extends PlayerSettings {
+    private final GameServiceManager gameServiceManager;
 
-    private GameServiceManager gameServiceManager;
     public ImpPlayerSettings(GameServiceManager gameServiceManager, PlayerData playerData) {
         super(playerData);
         this.gameServiceManager = gameServiceManager;
@@ -38,6 +38,7 @@ public class ImpPlayerSettings extends PlayerSettings {
         this.gameServiceManager = gameServiceManager;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void update() {
         Player player = Bukkit.getPlayer(playerData.getPlayerID());
@@ -59,8 +60,7 @@ public class ImpPlayerSettings extends PlayerSettings {
     }
 
     @Override
-    public void refresh()
-    {
+    public void refresh() {
         try {
             //LOAD SQL
             PlayerSettingsBean playerSettings1 = gameServiceManager.getPlayerSettings(playerData.getPlayerBean());

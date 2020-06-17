@@ -22,22 +22,19 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class Party implements IParty {
-
-    private UUID party;
+    private final UUID party;
     private UUID leader;
 
-    private List<UUID> players;
+    private final List<UUID> players;
 
-    public Party(UUID party, UUID leader, List<UUID> players)
-    {
+    public Party(UUID party, UUID leader, List<UUID> players) {
         this.party = party;
         this.leader = leader;
         this.players = players;
     }
 
     @Override
-    public UUID getParty()
-    {
+    public UUID getParty() {
         return party;
     }
 
@@ -52,8 +49,7 @@ public class Party implements IParty {
     }
 
     @Override
-    public boolean containsPlayer(UUID player)
-    {
+    public boolean containsPlayer(UUID player) {
         return players.contains(player);
     }
 

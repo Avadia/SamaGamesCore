@@ -31,17 +31,15 @@ import java.util.List;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class RemoteAccessManager {
+    private final MBeanServer mBeanServer;
 
-    private MBeanServer mBeanServer;
-
-    public RemoteAccessManager()
-    {
+    public RemoteAccessManager() {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean registerMBean(Object service) throws Exception {
-
-        ObjectName name = null;
+        ObjectName name;
         try {
             Class<?> sClass = service.getClass();
             name = new ObjectName(sClass.getName() + ":type=OpenMXBean,name=" + sClass.getSimpleName());
@@ -59,8 +57,7 @@ public class RemoteAccessManager {
                 | InstanceNotFoundException
                 | RuntimeOperationsException
                 | InvalidTargetObjectTypeException
-                | MBeanException e)
-        {
+                | MBeanException e) {
             e.printStackTrace();
         }
         return false;
@@ -68,8 +65,7 @@ public class RemoteAccessManager {
 
     private ModelMBeanInfo generateMBeanInfo(Object service) throws Exception {
         Class<?> sClass = service.getClass();
-        if (!sClass.isAnnotationPresent(RemoteObject.class))
-        {
+        if (!sClass.isAnnotationPresent(RemoteObject.class)) {
             throw new Exception("Object " + sClass.getName() + " doesn't have RemoteObject annotation");
         }
         RemoteObject remoteObject = sClass.getAnnotation(RemoteObject.class);
@@ -83,13 +79,11 @@ public class RemoteAccessManager {
                 null);
     }
 
-    private ModelMBeanAttributeInfo[] generateAttributesInfos(Class sClass)
-    {
+    @SuppressWarnings({"rawtypes", "ToArrayCallWithZeroLengthArrayArgument"})
+    private ModelMBeanAttributeInfo[] generateAttributesInfos(Class sClass) {
         ArrayList<ModelMBeanAttributeInfo> attributes = new ArrayList<>();
-        for (Field field : sClass.getFields())
-        {
-            if (!field.isAnnotationPresent(RemoteAttribute.class))
-            {
+        for (Field field : sClass.getFields()) {
+            if (!field.isAnnotationPresent(RemoteAttribute.class)) {
                 continue;
             }
 
@@ -102,15 +96,13 @@ public class RemoteAccessManager {
             desc.add("default=" + remoteAttribute.defaultValue());
 
             String value = remoteAttribute.setMethod();
-            if (!value.equals(""))
-            {
-                desc.add("setMethod=" +value);
+            if (!value.equals("")) {
+                desc.add("setMethod=" + value);
             }
 
             value = remoteAttribute.getMethod();
-            if (!value.equals(""))
-            {
-                desc.add("getMethod=" +value);
+            if (!value.equals("")) {
+                desc.add("getMethod=" + value);
             }
             //Could be simplified by check get and set before allocate the array but boring
             Descriptor descriptor = new DescriptorSupport(desc.toArray(new String[desc.size()]));
@@ -125,38 +117,32 @@ public class RemoteAccessManager {
             attributes.add(valeur);
         }
 
-        if (attributes.size() > 0)
-        {
+        if (attributes.size() > 0) {
             return attributes.toArray(new ModelMBeanAttributeInfo[attributes.size()]);
-        }else {
+        } else {
             //No attribute so return null is better
             return null;
         }
     }
 
-    private ModelMBeanOperationInfo[] generateOperationsInfos(Class sClass)
-    {
+    @SuppressWarnings({"rawtypes", "ToArrayCallWithZeroLengthArrayArgument"})
+    private ModelMBeanOperationInfo[] generateOperationsInfos(Class sClass) {
         ArrayList<ModelMBeanOperationInfo> operations = new ArrayList<>();
-        for (Method method : sClass.getMethods())
-        {
-            if (!method.isAnnotationPresent(RemoteMethod.class))
-            {
+        for (Method method : sClass.getMethods()) {
+            if (!method.isAnnotationPresent(RemoteMethod.class)) {
                 continue;
             }
 
             RemoteMethod remoteMethod = method.getAnnotation(RemoteMethod.class);
 
             MBeanParameterInfo[] parameterInfos = null;
-            if (method.getParameters().length > 0)
-            {
+            if (method.getParameters().length > 0) {
                 parameterInfos = new MBeanParameterInfo[method.getParameters().length];
                 int i = 0;
-                for (Parameter parameter : method.getParameters())
-                {
+                for (Parameter parameter : method.getParameters()) {
                     String name = parameter.getName();
                     String description = parameter.getName();
-                    if (parameter.isAnnotationPresent(RemoteParameter.class))
-                    {
+                    if (parameter.isAnnotationPresent(RemoteParameter.class)) {
                         RemoteParameter remoteParameter = parameter.getAnnotation(RemoteParameter.class);
                         name = remoteParameter.name();
                         description = remoteParameter.description();
@@ -175,10 +161,9 @@ public class RemoteAccessManager {
             operations.add(operation);
         }
 
-        if (operations.size() > 0)
-        {
+        if (operations.size() > 0) {
             return operations.toArray(new ModelMBeanOperationInfo[operations.size()]);
-        }else {
+        } else {
             //No attribute so return null is better
             return null;
         }

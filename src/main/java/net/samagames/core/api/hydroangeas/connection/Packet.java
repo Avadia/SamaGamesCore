@@ -16,27 +16,22 @@ package net.samagames.core.api.hydroangeas.connection;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class Packet
-{
+public class Packet {
     private final Runnable callback;
 
-    public Packet(Runnable callback)
-    {
+    public Packet(Runnable callback) {
         this.callback = callback;
     }
 
-    public Packet()
-    {
+    public Packet() {
         this.callback = null;
     }
 
-    public void callback()
-    {
-        try
-        {
+    public void callback() {
+        try {
             if (this.callback != null)
                 this.callback.run();
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
     }
 }

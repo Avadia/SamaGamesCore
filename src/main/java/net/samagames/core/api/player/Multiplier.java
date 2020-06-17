@@ -19,54 +19,46 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class Multiplier
-{
+public class Multiplier {
     private int globalAmount;
     private final long endTime;
     private final Map<String, Integer> combinedData = new HashMap<>();
     private String message;
 
-    public Multiplier(int globalAmount, long endTime, String message)
-    {
+    public Multiplier(int globalAmount, long endTime, String message) {
         this(globalAmount, endTime);
         this.message = message;
     }
 
-    public Multiplier(int globalAmount, long endTime)
-    {
+    public Multiplier(int globalAmount, long endTime) {
         this.globalAmount = globalAmount;
         this.endTime = endTime;
     }
 
-    public int getGlobalAmount()
-    {
-        return (globalAmount >= 1) ? globalAmount : 1;
+    public int getGlobalAmount() {
+        return Math.max(globalAmount, 1);
     }
 
-    public boolean isValid()
-    {
+    public boolean isValid() {
         return endTime > System.currentTimeMillis();
     }
-    
-    public String getMessage()
-    {
+
+    public String getMessage() {
         return message;
     }
 
-    public Multiplier cross(Multiplier multiplier)
-    {
+    @SuppressWarnings("UnusedReturnValue")
+    public Multiplier cross(Multiplier multiplier) {
         this.globalAmount *= multiplier.getGlobalAmount();
         this.combinedData.put(multiplier.getMessage(), multiplier.getGlobalAmount());
         return this;
     }
 
-    public Map<String, Integer> getCombinedData()
-    {
+    public Map<String, Integer> getCombinedData() {
         return combinedData;
     }
 
-    public Multiplier cross(int multiplier)
-    {
+    public Multiplier cross(int multiplier) {
         this.combinedData.put("", multiplier);
         this.globalAmount *= multiplier;
         return this;

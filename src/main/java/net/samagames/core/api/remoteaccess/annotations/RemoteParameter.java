@@ -25,5 +25,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RemoteParameter {
     String name();
+
     String description();
 }

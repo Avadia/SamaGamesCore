@@ -29,38 +29,32 @@ import org.bukkit.event.player.PlayerQuitEvent;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class TabsColorsListener extends APIListener
-{
+public class TabsColorsListener extends APIListener {
     private final TeamManager manager;
 
-    public TabsColorsListener(APIPlugin plugin)
-    {
+    public TabsColorsListener(APIPlugin plugin) {
         super(plugin);
 
         manager = new TeamManager(plugin);
 
         plugin.getAPI().getNPCManager().setScoreBoardRegister((data, error) -> {
             TeamHandler.VTeam npc = manager.getTeamHandler().getTeamByName("NPC");
-            if(npc != null)
-            {
+            if (npc != null) {
                 manager.getTeamHandler().addPlayerToTeam(data.getName(), npc);
             }
         });
     }
 
-    private String replaceColors(String message)
-    {
+    private String replaceColors(String message) {
         String s = message;
-        for (ChatColor color : ChatColor.values())
-        {
+        for (ChatColor color : ChatColor.values()) {
             s = s.replaceAll("(?i)&" + color.getChar(), "" + color);
         }
         return s;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerJoin(final PlayerJoinEvent event)
-    {
+    public void onPlayerJoin(final PlayerJoinEvent event) {
         final Player p = event.getPlayer();
         manager.playerJoin(p); // Passer ça en sync si crash //
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -71,15 +65,13 @@ public class TabsColorsListener extends APIListener
     }
 
     @EventHandler
-    public void playerQuit(final PlayerQuitEvent event)
-    {
+    public void playerQuit(final PlayerQuitEvent event) {
         manager.playerLeave(event.getPlayer());
         event.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
     }
 
     @EventHandler
-    public void playerKick(final PlayerKickEvent event)
-    {
+    public void playerKick(final PlayerKickEvent event) {
         manager.playerLeave(event.getPlayer());
     }
 }

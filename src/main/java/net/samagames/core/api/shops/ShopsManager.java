@@ -26,76 +26,64 @@ import java.util.concurrent.TimeUnit;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ShopsManager implements IShopsManager
-{
-    private boolean[] shopToLoad;
+public class ShopsManager implements IShopsManager {
+    private final boolean[] shopToLoad;
 
     private ItemDescription[] itemsCache;
-    private ConcurrentHashMap<UUID, PlayerShop> cache;
-    private ApiImplementation api;
+    private final ConcurrentHashMap<UUID, PlayerShop> cache;
+    private final ApiImplementation api;
 
-    public ShopsManager(ApiImplementation api)
-    {
+    public ShopsManager(ApiImplementation api) {
         this.api = api;
         this.cache = new ConcurrentHashMap<>();
         this.itemsCache = new ItemDescription[0];
 
         this.shopToLoad = new boolean[GamesNames.values().length];
-        for (int i = 0; i < shopToLoad.length; i++)
-        {
+        for (int i = 0; i < shopToLoad.length; i++) {
             shopToLoad[i] = api.getPlugin().isHub();
         }
 
         // load all item desc and refresh every 5 min
         api.getPlugin().getExecutor().scheduleAtFixedRate(() -> {
-            try
-            {
+            try {
                 List<ItemDescriptionBean> allItemDescription = api.getGameServiceManager().getAllItemDescription();
                 int n = allItemDescription.size();
 
-                itemsCache = new ItemDescription[Math.max(n, allItemDescription.get(n-1).getItemId())];
-                for (ItemDescriptionBean bean : allItemDescription)
-                {
+                itemsCache = new ItemDescription[Math.max(n, allItemDescription.get(n - 1).getItemId())];
+                for (ItemDescriptionBean bean : allItemDescription) {
                     itemsCache[bean.getItemId()] = new ItemDescription(bean);
                 }
-            }catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }, 0, 5, TimeUnit.MINUTES);
     }
 
-    public void loadPlayer(UUID player)
-    {
-        try{
+    public void loadPlayer(UUID player) {
+        try {
             PlayerShop playerShop = new PlayerShop(api, shopToLoad, player);
             playerShop.refresh();
             cache.put(player, playerShop);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void unloadPlayer(UUID player)
-    {
-        PlayerShop playerShop = cache.get(player);
-        if (playerShop != null)
-        {
-            //playerShop.update();
-        }
+    public void unloadPlayer(UUID player) {
+//        PlayerShop playerShop = cache.get(player);
+//        if (playerShop != null) {
+//            playerShop.update();
+//        }
         cache.remove(player);
     }
 
     @Override
-    public void setShopToLoad(GamesNames game, boolean value)
-    {
+    public void setShopToLoad(GamesNames game, boolean value) {
         shopToLoad[game.intValue()] = value;
     }
 
     @Override
-    public boolean isShopLoading(GamesNames game)
-    {
+    public boolean isShopLoading(GamesNames game) {
         return shopToLoad[game.intValue()];
     }
 
@@ -110,10 +98,8 @@ public class ShopsManager implements IShopsManager
 
     @Override
     public ItemDescription getItemDescriptionByName(String itemName) throws Exception {
-        for (ItemDescription description : itemsCache)
-        {
-            if (description.getItemName().equals(itemName))
-            {
+        for (ItemDescription description : itemsCache) {
+            if (description.getItemName().equals(itemName)) {
                 return description;
             }
         }
@@ -121,8 +107,7 @@ public class ShopsManager implements IShopsManager
     }
 
     @Override
-    public PlayerShop getPlayer(UUID player)
-    {
+    public PlayerShop getPlayer(UUID player) {
         return cache.get(player);
     }
 }

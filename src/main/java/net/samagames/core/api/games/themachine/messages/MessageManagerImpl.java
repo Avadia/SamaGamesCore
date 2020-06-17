@@ -27,18 +27,15 @@ import java.util.concurrent.TimeUnit;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class MessageManagerImpl implements IMessageManager
-{
+public class MessageManagerImpl implements IMessageManager {
     private final ICoherenceMachine machine;
 
-    public MessageManagerImpl(ICoherenceMachine machine)
-    {
+    public MessageManagerImpl(ICoherenceMachine machine) {
         this.machine = machine;
     }
 
     @Override
-    public Message writeCustomMessage(String text, boolean gameTag)
-    {
+    public Message writeCustomMessage(String text, boolean gameTag) {
         if (gameTag)
             return new Message(text, this.machine.getGameTag()).displayToAll();
         else
@@ -46,66 +43,55 @@ public class MessageManagerImpl implements IMessageManager
     }
 
     @Override
-    public Message writePlayerJoinToAll(Player player, boolean playerCount)
-    {
-        return new Message(String.valueOf(ChatColor.YELLOW) + this.getName(player.getUniqueId()) + " a rejoint la partie !" + (playerCount ? " " + ChatColor.DARK_GRAY + "[" + ChatColor.RED + this.machine.getGame().getConnectedPlayers() + ChatColor.DARK_GRAY + "/" + ChatColor.RED + this.machine.getGameProperties().getMaxSlots() + ChatColor.DARK_GRAY + "]" : ""), this.machine.getGameTag()).displayToAll();
+    public Message writePlayerJoinToAll(Player player, boolean playerCount) {
+        return new Message(ChatColor.YELLOW + this.getName(player.getUniqueId()) + " a rejoint la partie !" + (playerCount ? " " + ChatColor.DARK_GRAY + "[" + ChatColor.RED + this.machine.getGame().getConnectedPlayers() + ChatColor.DARK_GRAY + "/" + ChatColor.RED + this.machine.getGameProperties().getMaxSlots() + ChatColor.DARK_GRAY + "]" : ""), this.machine.getGameTag()).displayToAll();
     }
 
     @Override
-    public Message writeWelcomeInGameToPlayer(Player player)
-    {
+    public Message writeWelcomeInGameToPlayer(Player player) {
         return new Message(ChatColor.GOLD + "\nBienvenue en " + ChatColor.RED + this.machine.getGame().getGameName() + ChatColor.GOLD + " !").display(player);
     }
 
     @Override
-    public Message writeGameStartIn(int remainingTime)
-    {
+    public Message writeGameStartIn(int remainingTime) {
         return new Message(ChatColor.YELLOW + "Début du jeu dans " + ChatColor.RED + remainingTime + " seconde" + (remainingTime > 1 ? "s" : "") + ChatColor.YELLOW + ".", this.machine.getGameTag()).displayToAll();
     }
 
     @Override
-    public Message writeNotEnoughPlayersToStart()
-    {
+    public Message writeNotEnoughPlayersToStart() {
         return new Message(ChatColor.RED + "Il n'y a plus assez de joueurs pour commencer.", this.machine.getGameTag()).displayToAll();
     }
 
     @Override
-    public Message writeGameStart()
-    {
+    public Message writeGameStart() {
         return new Message("La partie commence !", this.machine.getGameTag()).displayToAll();
     }
 
     @Override
-    public Message writePlayerQuited(Player player)
-    {
+    public Message writePlayerQuited(Player player) {
         return new Message(ChatColor.WHITE + this.getName(player.getUniqueId()) + " s'est déconnecté du jeu.", this.machine.getGameTag()).displayToAll();
     }
 
     @Override
-    public Message writePlayerDisconnected(Player player, int remainingTime)
-    {
+    public Message writePlayerDisconnected(Player player, int remainingTime) {
         return new Message(ChatColor.RED + this.getName(player.getUniqueId()) + " s'est déconnecté ! Il a " + formatTime(remainingTime) + " pour revenir.", this.machine.getGameTag()).displayToAll();
     }
 
     @Override
-    public Message writePlayerReconnected(Player player)
-    {
+    public Message writePlayerReconnected(Player player) {
         return new Message(ChatColor.GREEN + this.getName(player.getUniqueId()) + " s'est reconnecté !", this.machine.getGameTag()).displayToAll();
     }
 
     @Override
-    public Message writePlayerReconnectTimeOut(OfflinePlayer player)
-    {
+    public Message writePlayerReconnectTimeOut(OfflinePlayer player) {
         return new Message(ChatColor.RED + this.getName(player.getUniqueId()) + " ne s'est pas reconnecté à temps !", this.machine.getGameTag()).displayToAll();
     }
 
-    private String getName(UUID player)
-    {
+    private String getName(UUID player) {
         return SamaGamesAPI.get().getPlayerManager().getPlayerData(player).getDisplayName();
     }
 
-    private String formatTime(long time)
-    {
+    private String formatTime(long time) {
         long days = TimeUnit.MILLISECONDS.toDays(time);
         time -= TimeUnit.DAYS.toMillis(days);
         long hours = TimeUnit.MILLISECONDS.toHours(time);

@@ -10,7 +10,6 @@ import net.samagames.core.listeners.general.*;
 import net.samagames.core.listeners.pluginmessages.PluginMessageListener;
 import net.samagames.core.utils.CommandBlocker;
 import net.samagames.persistanceapi.GameServiceManager;
-import net.samagames.tools.Reflection;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -51,15 +50,16 @@ import java.util.logging.Level;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class APIPlugin extends JavaPlugin implements Listener
-{
+public class APIPlugin extends JavaPlugin implements Listener {
     private static APIPlugin instance;
     private final CopyOnWriteArraySet<String> ipWhiteList = new CopyOnWriteArraySet<>();
     private ApiImplementation api;
     private DatabaseConnector databaseConnector;
     private String serverName;
+    @SuppressWarnings("FieldCanBeLocal")
     private FileConfiguration configuration;
     private boolean allowJoin;
+    @SuppressWarnings("FieldCanBeLocal")
     private boolean disableWhitelist;
     private final String denyJoinReason = ChatColor.RED + "Serveur non initialisé.";
     private boolean serverRegistered;
@@ -77,6 +77,7 @@ public class APIPlugin extends JavaPlugin implements Listener
 
     private BukkitTask startTimer;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private ChatHandleListener chatHandleListener;
     private GlobalJoinListener globalJoinListener;
 
@@ -85,28 +86,24 @@ public class APIPlugin extends JavaPlugin implements Listener
     private HydroangeasManager hydroangeasManager;
 
 
-    public static APIPlugin getInstance()
-    {
+    public static APIPlugin getInstance() {
         return instance;
     }
 
-    public static void log(String message)
-    {
+    public static void log(String message) {
         instance.getLogger().info(message);
     }
 
-    public static void log(Level level, String message)
-    {
+    public static void log(Level level, String message) {
         instance.getLogger().log(level, message);
     }
 
-    public ApiImplementation getAPI()
-    {
+    public ApiImplementation getAPI() {
         return api;
     }
 
-    public void onEnable()
-    {
+    @SuppressWarnings({"UnstableApiUsage", "rawtypes", "unchecked"})
+    public void onEnable() {
         instance = this;
 
         log("#==========[WELCOME TO SAMAGAMES API]==========#");
@@ -125,8 +122,7 @@ public class APIPlugin extends JavaPlugin implements Listener
 
         serverName = configuration.getString("bungeename");
 
-        if (serverName == null)
-        {
+        if (serverName == null) {
             log(Level.SEVERE, "Plugin cannot load : ServerName is empty.");
             this.setEnabled(false);
             Bukkit.getServer().shutdown();
@@ -138,14 +134,12 @@ public class APIPlugin extends JavaPlugin implements Listener
 
         File conf = new File(getDataFolder().getAbsoluteFile().getParentFile().getParentFile(), "data.yml");
         this.getLogger().info("Searching data.yml in " + conf.getAbsolutePath());
-        if (!conf.exists())
-        {
+        if (!conf.exists()) {
             log(Level.SEVERE, "Cannot find database configuration. Stopping!");
             this.setEnabled(false);
             this.getServer().shutdown();
             return;
-        } else
-        {
+        } else {
             YamlConfiguration dataYML = YamlConfiguration.loadConfiguration(conf);
 
             String bungeeIp = dataYML.getString("redis-bungee-ip", "127.0.0.1");
@@ -230,17 +224,13 @@ public class APIPlugin extends JavaPlugin implements Listener
         Loading commands
 		 */
 
-        for (String command : this.getDescription().getCommands().keySet())
-        {
-            try
-            {
+        for (String command : this.getDescription().getCommands().keySet()) {
+            try {
                 Class clazz = Class.forName("net.samagames.core.commands.Command" + StringUtils.capitalize(command));
                 Constructor<APIPlugin> ctor = clazz.getConstructor(APIPlugin.class);
                 getCommand(command).setExecutor(ctor.newInstance(this));
                 log("Loaded command " + command + " successfully. ");
-            }
-            catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e)
-            {
+            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -250,23 +240,19 @@ public class APIPlugin extends JavaPlugin implements Listener
         this.startTimer = getServer().getScheduler().runTaskTimer(this, this::postInit, 20L, 20L);
     }
 
-    public void disable()
-    {
+    public void disable() {
         this.setEnabled(false);
     }
 
-    public DebugListener getDebugListener()
-    {
+    public DebugListener getDebugListener() {
         return debugListener;
     }
 
-    public ScheduledExecutorService getExecutor()
-    {
+    public ScheduledExecutorService getExecutor() {
         return executor;
     }
 
-    private void postInit()
-    {
+    private void postInit() {
         this.startTimer.cancel();
 
         log("Removing private commands...");
@@ -274,8 +260,7 @@ public class APIPlugin extends JavaPlugin implements Listener
         log("Removed private commands.");
     }
 
-    public void onDisable()
-    {
+    public void onDisable() {
         String bungeename = getServerName();
         Jedis rb_jedis = databaseConnector.getBungeeResource();
         rb_jedis.hdel("servers", bungeename);
@@ -294,42 +279,36 @@ public class APIPlugin extends JavaPlugin implements Listener
         getServer().shutdown();
     }
 
-    public boolean canConnect(String ip)
-    {
+    public boolean canConnect(String ip) {
         return containsIp(ip);
     }
 
-    public void refreshIps(Set<String> ips)
-    {
+    public void refreshIps(Set<String> ips) {
         ipWhiteList.stream().filter(ip -> !ips.contains(ip)).forEach(ipWhiteList::remove);
 
         ips.stream().filter(ip -> !ipWhiteList.contains(ip)).forEach(ipWhiteList::add);
     }
 
-    private boolean containsIp(String ip)
-    {
+    private boolean containsIp(String ip) {
         return ipWhiteList.contains(ip);
     }
 
-    private void allowJoin()
-    {
+    private void allowJoin() {
         allowJoin = true;
     }
 
-    public String getServerName()
-    {
+    public String getServerName() {
         return serverName;
     }
 
-    private void registerServer()
-    {
+    @SuppressWarnings("CatchMayIgnoreException")
+    private void registerServer() {
         if (serverRegistered)
             return;
 
         log("Trying to register server to the proxy");
         //now done by hydro
-        try
-        {
+        try {
             String bungeename = getServerName();
 
             Jedis rb_jedis = databaseConnector.getBungeeResource();
@@ -346,13 +325,11 @@ public class APIPlugin extends JavaPlugin implements Listener
                     jedis.close();
 
                     api.getPubSub().send("servers", "heartbeat " + getServerName() + " " + getServer().getIp() + " " + getServer().getPort());
-                }catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }, 30, 20, TimeUnit.SECONDS);
-        } catch (Exception ignore)
-        {
+        } catch (Exception ignore) {
             ignore.printStackTrace();
             return;
         }
@@ -366,10 +343,8 @@ public class APIPlugin extends JavaPlugin implements Listener
 	 */
 
     @EventHandler
-    public void onLogin(PlayerLoginEvent event)
-    {
-        if (!allowJoin)
-        {
+    public void onLogin(PlayerLoginEvent event) {
+        if (!allowJoin) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, ChatColor.RED + denyJoinReason);
             event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
             event.setKickMessage(ChatColor.RED + denyJoinReason);
@@ -377,31 +352,26 @@ public class APIPlugin extends JavaPlugin implements Listener
             return;
         }
 
-        if (joinPermission != null && !api.getPermissionsManager().hasPermission(event.getPlayer(), joinPermission))
-        {
+        if (joinPermission != null && !api.getPermissionsManager().hasPermission(event.getPlayer(), joinPermission)) {
             event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, "Vous n'avez pas la permission de rejoindre ce serveur.");
         }
 
-        if (!ipWhiteList.contains(event.getRealAddress().getHostAddress()))
-        {
+        if (!ipWhiteList.contains(event.getRealAddress().getHostAddress())) {
             event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
             event.setKickMessage(ChatColor.RED + "Erreur de connexion vers le serveur... Merci de bien vouloir ré-essayer plus tard.");
             Bukkit.getLogger().log(Level.WARNING, "An user tried to connect from IP " + event.getRealAddress().getHostAddress());
         }
     }
 
-    public GlobalJoinListener getGlobalJoinListener()
-    {
+    public GlobalJoinListener getGlobalJoinListener() {
         return globalJoinListener;
     }
 
-    public boolean isHub()
-    {
+    public boolean isHub() {
         return getServerName().startsWith("Hub");
     }
 
-    public DatabaseConnector getDatabaseConnector()
-    {
+    public DatabaseConnector getDatabaseConnector() {
         return databaseConnector;
     }
 

@@ -21,10 +21,8 @@ import org.bukkit.Bukkit;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class LegacyManager
-{
-    public LegacyManager(APIPlugin plugin)
-    {
+public class LegacyManager {
+    public LegacyManager(APIPlugin plugin) {
         Bukkit.getPluginManager().registerEvents(new ArmorModule(plugin.getAPI()), plugin);
         Bukkit.getPluginManager().registerEvents(new CooldownModule(plugin.getAPI()), plugin);
     }

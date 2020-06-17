@@ -26,42 +26,34 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class DebugListener implements IPatternReceiver, IJoinHandler
-{
-
+public class DebugListener implements IPatternReceiver, IJoinHandler {
     private final CopyOnWriteArraySet<UUID> debugs = new CopyOnWriteArraySet<>();
     private boolean console = false;
 
-    public void toggle(CommandSender sender)
-    {
-        if (sender instanceof Player)
-        {
+    public void toggle(CommandSender sender) {
+        if (sender instanceof Player) {
             UUID id = ((Player) sender).getUniqueId();
             if (debugs.contains(id))
                 debugs.add(id);
             else
                 debugs.remove(id);
-        } else
-        {
+        } else {
             console = !console;
         }
     }
 
     @Override
-    public void onLogout(Player player)
-    {
+    public void onLogout(Player player) {
         debugs.remove(player.getUniqueId());
     }
 
     @Override
-    public void receive(String pattern, String channel, String packet)
-    {
+    public void receive(String pattern, String channel, String packet) {
         if (channel.equals("__sentinel__:hello"))
             return;
 
         String send = ChatColor.AQUA + "[BukkitDebug : " + channel + "] " + packet;
-        for (UUID debug : debugs)
-        {
+        for (UUID debug : debugs) {
             Player player = Bukkit.getPlayer(debug);
             if (player != null)
                 player.sendMessage(send);

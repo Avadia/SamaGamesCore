@@ -31,30 +31,23 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-class GameLoginHandler implements IJoinHandler
-{
+class GameLoginHandler implements IJoinHandler {
     private final IGameManager api;
 
-    private JoinManagerImplement joinManager;
+    private final JoinManagerImplement joinManager;
 
-    public GameLoginHandler(IGameManager api)
-    {
+    public GameLoginHandler(IGameManager api) {
         this.api = api;
         this.joinManager = (JoinManagerImplement) ApiImplementation.get().getJoinManager();
     }
 
     @Override
-    public void finishJoin(Player player)
-    {
-        if (api.getGame() != null)
-        {
-            if(api.getGame().isGameStarted())
-            {
+    public void finishJoin(Player player) {
+        if (api.getGame() != null) {
+            if (api.getGame().isGameStarted()) {
                 if (api.isReconnectAllowed(player.getUniqueId()) && api.isWaited(player.getUniqueId()))
                     api.onPlayerReconnect(player);
-            }
-            else
-            {
+            } else {
                 api.getGame().handleLogin(player);
             }
 
@@ -62,21 +55,17 @@ class GameLoginHandler implements IJoinHandler
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public JoinResponse requestJoin(UUID player, JoinResponse response)
-    {
-        if (api.getGame() != null)
-        {
+    public JoinResponse requestJoin(UUID player, JoinResponse response) {
+        if (api.getGame() != null) {
             Game game = api.getGame();
 
             Pair<Boolean, String> gameResponse = game.canJoinGame(player, false);
 
-            if (gameResponse.getKey())
-            {
+            if (gameResponse.getKey()) {
                 response.allow();
-            }
-            else
-            {
+            } else {
                 response.disallow(gameResponse.getValue());
                 return response;
             }
@@ -87,21 +76,18 @@ class GameLoginHandler implements IJoinHandler
         return response;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public JoinResponse requestPartyJoin(UUID party, UUID player, JoinResponse response)
-    {
-        if (api.getGame() != null)
-        {
+    public JoinResponse requestPartyJoin(UUID party, UUID player, JoinResponse response) {
+        if (api.getGame() != null) {
             Game game = api.getGame();
             //Hope for cache
             List<UUID> members = SamaGamesAPI.get().getPartiesManager().getParty(party).getPlayers();
             Pair<Boolean, String> gameResponse = game.canPartyJoinGame(members);
 
-            if (gameResponse.getKey())
-            {
+            if (gameResponse.getKey()) {
                 response.allow();
-            } else
-            {
+            } else {
                 response.disallow(gameResponse.getValue());
                 return response;
             }
@@ -112,8 +98,8 @@ class GameLoginHandler implements IJoinHandler
         return response;
     }
 
-    public JoinResponse checkState(Game game, JoinResponse response, UUID player)
-    {
+    @SuppressWarnings("rawtypes")
+    public JoinResponse checkState(Game game, JoinResponse response, UUID player) {
         if (game.getStatus() == Status.IN_GAME || game.getStatus() == Status.FINISHED)
             response.disallow(ResponseType.DENY_IN_GAME);
         else if (game.getStatus() == Status.STARTING)
@@ -121,8 +107,7 @@ class GameLoginHandler implements IJoinHandler
         else if (joinManager.countExpectedPlayers() + game.getConnectedPlayers() >= api.getGameProperties().getMaxSlots())
             response.disallow(ResponseType.DENY_FULL);
 
-        if (api.isWaited(player) && api.isReconnectAllowed(player))
-        {
+        if (api.isWaited(player) && api.isReconnectAllowed(player)) {
             response.allow();
             return response;
         }
@@ -131,14 +116,12 @@ class GameLoginHandler implements IJoinHandler
     }
 
     @Override
-    public void onModerationJoin(Player player)
-    {
+    public void onModerationJoin(Player player) {
         api.getGame().handleModeratorLogin(player);
     }
 
     @Override
-    public void onLogout(Player player)
-    {
+    public void onLogout(Player player) {
         api.onPlayerDisconnect(player);
         api.refreshArena();
     }

@@ -24,22 +24,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class SettingsManager implements ISettingsManager
-{
-    private ApiImplementation api;
+public class SettingsManager implements ISettingsManager {
+    private final ApiImplementation api;
 
     //Thread safe to be sure
-    private ConcurrentHashMap<UUID, ImpPlayerSettings> cache;
+    private final ConcurrentHashMap<UUID, ImpPlayerSettings> cache;
 
-    public SettingsManager(ApiImplementation api)
-    {
+    public SettingsManager(ApiImplementation api) {
         this.api = api;
         this.cache = new ConcurrentHashMap<>();
     }
 
-    public void loadPlayer(UUID uuid)
-    {
-        try{
+    public void loadPlayer(UUID uuid) {
+        try {
             PlayerData playerData = api.getPlayerManager().getPlayerData(uuid);
             //First load from sql the save
             PlayerSettingsBean playerSettings1 = api.getGameServiceManager().getPlayerSettings(playerData.getPlayerBean());
@@ -47,26 +44,20 @@ public class SettingsManager implements ISettingsManager
 
             //Don't refresh here, data are recent so it only will spam proxy
             cache.put(uuid, playerSettings);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void unloadPlayer(UUID uuid)
-    {
-        if (cache.containsKey(uuid))
-        {
-            //Just remove data because update data when we change it
-            //cache.get(uuid).update();
-            //Then remove
-            cache.remove(uuid);
-        }
+    public void unloadPlayer(UUID uuid) {
+        //Just remove data because update data when we change it
+        //cache.get(uuid).update();
+        //Then remove
+        cache.remove(uuid);
     }
 
     @Override
-    public ImpPlayerSettings getSettings(UUID uuid)
-    {
+    public ImpPlayerSettings getSettings(UUID uuid) {
         return cache.get(uuid);
     }
 }

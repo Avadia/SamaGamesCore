@@ -2,7 +2,6 @@ package net.samagames.core.api.hydroangeas.connection;
 
 import com.google.gson.Gson;
 import net.samagames.api.SamaGamesAPI;
-import net.samagames.core.APIPlugin;
 import net.samagames.core.api.hydroangeas.HydroangeasManager;
 import net.samagames.core.api.hydroangeas.packets.queues.*;
 
@@ -25,17 +24,12 @@ import java.util.logging.Logger;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ConnectionManager
-{
-    private APIPlugin plugin;
-
+public class ConnectionManager {
     private final HydroangeasManager manager;
     private final Gson gson;
     private final Packet[] packets;
 
-    public ConnectionManager(APIPlugin plugin, HydroangeasManager manager)
-    {
-        this.plugin = plugin;
+    public ConnectionManager(HydroangeasManager manager) {
         this.manager = manager;
         this.gson = new Gson();
 
@@ -50,23 +44,18 @@ public class ConnectionManager
 
     }
 
-    public void getPacket(String packet)
-    {
+    public void getPacket(String packet) {
         String id;
 
-        try
-        {
+        try {
             id = packet.split(":")[0];
 
-            if(id == null || this.packets[Integer.parseInt(id)] == null)
-            {
+            if (id == null || this.packets[Integer.parseInt(id)] == null) {
                 //TODO change logger
                 Logger.getAnonymousLogger().log(Level.SEVERE, "Error bad packet ID in the channel");
                 return;
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             //TODO change logger
             Logger.getAnonymousLogger().log(Level.SEVERE, "Error packet no ID in the channel");
@@ -74,65 +63,51 @@ public class ConnectionManager
             return;
         }
 
-        packet = packet.substring(id.length()+1, packet.length());
+        packet = packet.substring(id.length() + 1);
 
-        this.handler(Integer.valueOf(id), packet);
+        this.handler(Integer.parseInt(id), packet);
     }
 
-    public int packetId(Packet p)
-    {
-        for (int i = 0; i < this.packets.length; i++)
-        {
-            if(this.packets[i] == null)
+    public int packetId(Packet p) {
+        for (int i = 0; i < this.packets.length; i++) {
+            if (this.packets[i] == null)
                 continue;
 
-            if(this.packets[i].getClass().equals(p.getClass()))
+            if (this.packets[i].getClass().equals(p.getClass()))
                 return i;
         }
 
         return -1;
     }
 
-    public void sendPacket(String channel, Packet data)
-    {
+    public void sendPacket(String channel, Packet data) {
         int id = this.packetId(data);
 
-        if(id < 0)
-        {
+        if (id < 0) {
             //TODO change logger
             Logger.getAnonymousLogger().log(Level.SEVERE, "Bad packet ID: " + id);
             return;
-        }
-        else if(channel == null)
-        {
+        } else if (channel == null) {
             //TODO change logger
             Logger.getAnonymousLogger().log(Level.SEVERE, "Channel null !");
             return;
         }
 
-        try
-        {
+        try {
             SamaGamesAPI.get().getPubSub().send(channel, id + ":" + this.gson.toJson(data));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void sendPacket(Packet packet)
-    {
+    public void sendPacket(Packet packet) {
         this.sendPacket("global@hydroangeas-server", packet);
     }
 
-    public void handler(int id, String data)
-    {
-        try
-        {
+    public void handler(int id, String data) {
+        try {
             this.manager.getPacketReceiver().callPacket(this.gson.fromJson(data, this.packets[id].getClass()));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

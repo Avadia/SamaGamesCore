@@ -25,30 +25,24 @@ import java.util.stream.Collectors;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PartiesManager implements IPartiesManager
-{
-
+public class PartiesManager implements IPartiesManager {
     private final ApiImplementation api;
-    private HashMap<UUID, Party> parties;
+    private final HashMap<UUID, Party> parties;
 
-    public PartiesManager(ApiImplementation api)
-    {
+    public PartiesManager(ApiImplementation api) {
         this.parties = new HashMap<>();
         this.api = api;
     }
 
     //TODO add to listerner before join
-    public void loadPlayer(UUID player)
-    {
+    public void loadPlayer(UUID player) {
         //TODO create partie if not already
-        try{
+        try {
             Party party = getPartyForPlayer(player);
 
-            if (party == null)
-            {
+            if (party == null) {
                 Jedis jedis = api.getBungeeResource();
-                if (!jedis.exists("currentparty:" + player))
-                {
+                if (!jedis.exists("currentparty:" + player)) {
                     jedis.close();
                     return;
                 }
@@ -56,15 +50,13 @@ public class PartiesManager implements IPartiesManager
                 loadParty(partieID);
                 jedis.close();
             }
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public void loadParty(UUID party)
-    {
+    public void loadParty(UUID party) {
         Jedis jedis = api.getBungeeResource();
         String leader = jedis.get("party:" + party + ":lead");
         Map<String, String> data = jedis.hgetAll("party:" + party + ":members");
@@ -76,51 +68,41 @@ public class PartiesManager implements IPartiesManager
         parties.put(party, partie);
     }
 
-    public void unloadPlayer(UUID player)
-    {
+    public void unloadPlayer(UUID player) {
         Party party = getPartyForPlayer(player);
-        if (party != null)
-        {
+        if (party != null) {
             unloadParties();
         }
     }
 
     //Check all in case of dead party
-    public void unloadParties()
-    {
-        for (Party party : new ArrayList<>(parties.values()))
-        {
+    public void unloadParties() {
+        for (Party party : new ArrayList<>(parties.values())) {
             int online = 0;
             //Check si tous les joueurs se sont deconnecter
-            for (UUID players : party.getPlayers())
-            {
-                if (Bukkit.getPlayer(players) != null)
-                {
+            for (UUID players : party.getPlayers()) {
+                if (Bukkit.getPlayer(players) != null) {
                     online++;
                 }
             }
-            if (online == 0)
-            {
+            if (online == 0) {
                 parties.remove(party.getParty());
             }
         }
     }
 
     @Override
-    public List<UUID> getPlayersInParty(UUID party)
-    {
+    public List<UUID> getPlayersInParty(UUID party) {
         Party party1 = getParty(party);
-        if (party1 != null)
-        {
+        if (party1 != null) {
             return party1.getPlayers();
-        }else {
+        } else {
             return new ArrayList<>();
         }
     }
 
     @Override
-    public String getCurrentServer(UUID party)
-    {
+    public String getCurrentServer(UUID party) {
         Jedis jedis = api.getBungeeResource();
         String server = jedis.get("party:" + party + ":server");
         jedis.close();
@@ -128,26 +110,21 @@ public class PartiesManager implements IPartiesManager
     }
 
     @Override
-    public UUID getLeader(UUID party)
-    {
+    public UUID getLeader(UUID party) {
         Party partie = getParty(party);
         return (partie != null) ? partie.getLeader() : null;
     }
 
     @Override
-    public Party getParty(UUID partie)
-    {
+    public Party getParty(UUID partie) {
         //TODO load if not
         return parties.get(partie);
     }
 
     @Override
-    public Party getPartyForPlayer(UUID player)
-    {
-        for (Party party : parties.values())
-        {
-            if (party.containsPlayer(player))
-            {
+    public Party getPartyForPlayer(UUID player) {
+        for (Party party : parties.values()) {
+            if (party.containsPlayer(player)) {
                 return party;
             }
         }

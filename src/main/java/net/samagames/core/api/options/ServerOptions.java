@@ -19,12 +19,10 @@ import net.samagames.api.options.IServerOptions;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class ServerOptions implements IServerOptions {
-
     private boolean displayRanks;
     private boolean activeNature;
 
-    public ServerOptions()
-    {
+    public ServerOptions() {
         displayRanks = true;
         activeNature = true;
     }
@@ -35,20 +33,17 @@ public class ServerOptions implements IServerOptions {
     }
 
     @Override
-    public void setRankTabColorEnable(boolean enable)
-    {
+    public void setRankTabColorEnable(boolean enable) {
         displayRanks = enable;
     }
 
     @Override
-    public boolean hasActiveNature()
-    {
+    public boolean hasActiveNature() {
         return activeNature;
     }
 
     @Override
-    public void setActiveNature(boolean enable)
-    {
+    public void setActiveNature(boolean enable) {
         activeNature = enable;
     }
 }

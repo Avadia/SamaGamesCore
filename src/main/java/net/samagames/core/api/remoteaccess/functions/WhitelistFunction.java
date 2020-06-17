@@ -28,39 +28,32 @@ import java.util.stream.Collectors;
  */
 @RemoteObject(description = "Whitelist Management")
 public class WhitelistFunction {
-
     @RemoteMethod(description = "Add a player to the whitelist", impact = ModelMBeanOperationInfo.ACTION)
-    public void addPlayer(UUID player)
-    {
+    public void addPlayer(UUID player) {
         Bukkit.getWhitelistedPlayers().add(Bukkit.getOfflinePlayer(player));
         Bukkit.reloadWhitelist();
         Bukkit.getLogger().info("Added player " + player + " to whitelist");
     }
 
     @RemoteMethod(description = "Remove a player to the whitelist", impact = ModelMBeanOperationInfo.ACTION)
-    public void removePlayer(UUID player)
-    {
+    public void removePlayer(UUID player) {
         Bukkit.getWhitelistedPlayers().add(Bukkit.getOfflinePlayer(player));
         Bukkit.reloadWhitelist();
         Bukkit.getLogger().info("Added player " + player + " to whitelist");
     }
 
     @RemoteMethod(description = "Get the whitelist", impact = ModelMBeanOperationInfo.ACTION)
-    public ArrayList<UUID> getWhiteList()
-    {
+    public ArrayList<UUID> getWhiteList() {
         return Bukkit.getWhitelistedPlayers().stream().map(OfflinePlayer::getUniqueId).collect(Collectors.toCollection(ArrayList::new));
     }
 
     @RemoteMethod(description = "Know if the whitelist is actived", impact = ModelMBeanOperationInfo.INFO)
-    public boolean isWhiteListActived()
-    {
+    public boolean isWhiteListActived() {
         return Bukkit.hasWhitelist();
     }
 
     @RemoteMethod(description = "Set if the whitelist is actived", impact = ModelMBeanOperationInfo.ACTION)
-    public void setWhiteListActived(boolean actived)
-    {
+    public void setWhiteListActived(boolean actived) {
         Bukkit.setWhitelist(actived);
     }
-
 }

@@ -25,25 +25,20 @@ import org.bukkit.inventory.PlayerInventory;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class GuiListener implements Listener
-{
+public class GuiListener implements Listener {
     private final GuiManager manager;
 
-    public GuiListener(GuiManager manager)
-    {
+    public GuiListener(GuiManager manager) {
         this.manager = manager;
     }
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent event)
-    {
-        if (event.getWhoClicked() instanceof Player)
-        {
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player) {
             Player player = (Player) event.getWhoClicked();
             AbstractGui gui = manager.getPlayerGui(player);
 
-            if (gui != null)
-            {
+            if (gui != null) {
                 if (event.getClickedInventory() instanceof PlayerInventory)
                     return;
 
@@ -58,8 +53,7 @@ public class GuiListener implements Listener
     }
 
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event)
-    {
+    public void onInventoryClose(InventoryCloseEvent event) {
         if (manager.getPlayerGui(event.getPlayer()) != null)
             manager.removeClosedGui((Player) event.getPlayer());
     }

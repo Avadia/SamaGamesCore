@@ -2,7 +2,6 @@ package net.samagames.core.tabcolors;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.core.APIPlugin;
-import net.samagames.core.ApiImplementation;
 import net.samagames.core.api.permissions.PermissionEntity;
 import net.samagames.core.api.permissions.PermissionManager;
 import net.samagames.persistanceapi.beans.players.GroupsBean;
@@ -28,26 +27,21 @@ import java.util.concurrent.Executors;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class TeamManager
-{
+public class TeamManager {
     /**
      * The escape sequence for minecraft special chat codes
      */
     public static final char ESCAPE = '\u00A7';
     private final PermissionManager manager;
-    private final ApiImplementation api;
     private final TeamHandler teamHandler;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public TeamManager(APIPlugin pl)
-    {
+    public TeamManager(APIPlugin pl) {
         manager = pl.getAPI().getPermissionsManager();
-        api = pl.getAPI();
 
         teamHandler = new TeamHandler();
 
-        for (long i = 1; ; i++)
-        {
+        for (long i = 1; ; i++) {
             GroupsBean groupsBean = manager.getGroupByID(i);
             if (groupsBean == null)
                 break;
@@ -78,11 +72,10 @@ public class TeamManager
 
     }
 
-    private String getTeamName(String name, int rank)
-    {
-        String teamName = ((rank< 1000)?"0":"") +
-                ((rank< 100)?"0":"") +
-                ((rank< 10)?"0":"") +
+    private String getTeamName(String name, int rank) {
+        String teamName = ((rank < 1000) ? "0" : "") +
+                ((rank < 100) ? "0" : "") +
+                ((rank < 10) ? "0" : "") +
                 rank + name;
         return teamName.substring(0, Math.min(teamName.length(), 16));
     }
@@ -91,24 +84,18 @@ public class TeamManager
      * Takes a string and replaces &# color codes with ChatColors
      */
 
-    public void playerLeave(final Player p)
-    {
-        executor.execute(() -> {
-            teamHandler.removeReceiver(p);
-        });
+    public void playerLeave(final Player p) {
+        executor.execute(() -> teamHandler.removeReceiver(p));
     }
 
-    public void playerJoin(final Player p)
-    {
+    public void playerJoin(final Player p) {
         executor.execute(() -> {
             teamHandler.addReceiver(p);
-            if(SamaGamesAPI.get().getServerOptions().hasRankTabColor())
-            {
+            if (SamaGamesAPI.get().getServerOptions().hasRankTabColor()) {
                 final PermissionEntity user = manager.getPlayer(p.getUniqueId());
                 //PlayerData playerData = api.getPlayerManager().getPlayerData(p.getUniqueId());
                 TeamHandler.VTeam teamByName = teamHandler.getTeamByName(user.getDisplayGroupName());
-                if (teamByName == null)
-                {
+                if (teamByName == null) {
                     teamByName = teamHandler.getTeamByName("Joueur");
                 }
                 teamHandler.addPlayerToTeam(p, teamByName);
@@ -116,8 +103,7 @@ public class TeamManager
         });
     }
 
-    private String parseColor(String value)
-    {
+    private String parseColor(String value) {
         if (value == null)
             return "";
         value = value.replaceAll("&s", " ");
@@ -125,8 +111,7 @@ public class TeamManager
         return value;
     }
 
-    public TeamHandler getTeamHandler()
-    {
+    public TeamHandler getTeamHandler() {
         return teamHandler;
     }
 

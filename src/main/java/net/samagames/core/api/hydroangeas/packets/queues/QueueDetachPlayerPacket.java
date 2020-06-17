@@ -20,26 +20,23 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class QueueDetachPlayerPacket extends QueuePacket
-{
+public class QueueDetachPlayerPacket extends QueuePacket {
     private QPlayer leader;
     private List<QPlayer> players;
 
-    public QueueDetachPlayerPacket() {}
+    public QueueDetachPlayerPacket() {
+    }
 
-    public QueueDetachPlayerPacket(QPlayer leader, List<QPlayer> players)
-    {
+    public QueueDetachPlayerPacket(QPlayer leader, List<QPlayer> players) {
         this.leader = leader;
         this.players = players;
     }
 
-    public QPlayer getLeader()
-    {
+    public QPlayer getLeader() {
         return this.leader;
     }
 
-    public List<QPlayer> getPlayers()
-    {
+    public List<QPlayer> getPlayers() {
         return this.players;
     }
 }

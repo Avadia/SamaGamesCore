@@ -27,19 +27,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class GuiManager implements IGuiManager
-{
-
+public class GuiManager implements IGuiManager {
     private final ConcurrentHashMap<UUID, AbstractGui> currentGUIs;
 
-    public GuiManager(APIPlugin plugin)
-    {
+    public GuiManager(APIPlugin plugin) {
         this.currentGUIs = new ConcurrentHashMap<>();
         Bukkit.getPluginManager().registerEvents(new GuiListener(this), plugin);
     }
 
-    public void openGui(Player player, AbstractGui gui)
-    {
+    public void openGui(Player player, AbstractGui gui) {
         if (this.currentGUIs.containsKey(player.getUniqueId()))
             this.closeGui(player);
 
@@ -47,36 +43,30 @@ public class GuiManager implements IGuiManager
         gui.display(player);
     }
 
-    public void closeGui(Player player)
-    {
+    public void closeGui(Player player) {
         player.closeInventory();
         this.removeClosedGui(player);
     }
 
-    public void removeClosedGui(Player player)
-    {
-        if (this.currentGUIs.containsKey(player.getUniqueId()))
-        {
+    public void removeClosedGui(Player player) {
+        if (this.currentGUIs.containsKey(player.getUniqueId())) {
             this.getPlayerGui(player).onClose(player);
             this.currentGUIs.remove(player.getUniqueId());
         }
     }
 
-    public AbstractGui getPlayerGui(HumanEntity player)
-    {
+    public AbstractGui getPlayerGui(HumanEntity player) {
         return getPlayerGui(player.getUniqueId());
     }
 
-    public AbstractGui getPlayerGui(UUID player)
-    {
+    public AbstractGui getPlayerGui(UUID player) {
         if (this.currentGUIs.containsKey(player))
             return this.currentGUIs.get(player);
 
         return null;
     }
 
-    public ConcurrentHashMap<UUID, AbstractGui> getPlayersGui()
-    {
+    public ConcurrentHashMap<UUID, AbstractGui> getPlayersGui() {
         return this.currentGUIs;
     }
 }

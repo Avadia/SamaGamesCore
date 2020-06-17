@@ -46,21 +46,6 @@ public class Armor {
     public static Armor UNKNOWN;
     private final int defensePoints;
 
-    private Armor(Material material, int armorPoints) {
-        this.defensePoints = armorPoints;
-        if(material != null) {
-            armorMap.put(material, this);
-        }
-    }
-
-    public int getDefensePoints() {
-        return this.defensePoints;
-    }
-
-    public static Armor getForType(Material type) {
-        return (Armor)armorMap.getOrDefault(type, UNKNOWN);
-    }
-
     static {
         LEATHER_HELMET = new Armor(Material.LEATHER_HELMET, 1);
         LEATHER_CHESTPLATE = new Armor(Material.LEATHER_CHESTPLATE, 3);
@@ -82,6 +67,21 @@ public class Armor {
         DIAMOND_CHESTPLATE = new Armor(Material.DIAMOND_CHESTPLATE, 8);
         DIAMOND_LEGGINGS = new Armor(Material.DIAMOND_LEGGINGS, 6);
         DIAMOND_BOOTS = new Armor(Material.DIAMOND_BOOTS, 3);
-        UNKNOWN = new Armor((Material)null, 0);
+        UNKNOWN = new Armor(null, 0);
+    }
+
+    private Armor(Material material, int armorPoints) {
+        this.defensePoints = armorPoints;
+        if (material != null) {
+            armorMap.put(material, this);
+        }
+    }
+
+    public static Armor getForType(Material type) {
+        return armorMap.getOrDefault(type, UNKNOWN);
+    }
+
+    public int getDefensePoints() {
+        return this.defensePoints;
     }
 }

@@ -24,16 +24,13 @@ import org.bukkit.command.ConsoleCommandSender;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CommandAnticheatreport extends AbstractCommand
-{
-    public CommandAnticheatreport(APIPlugin plugin)
-    {
+public class CommandAnticheatreport extends AbstractCommand {
+    public CommandAnticheatreport(APIPlugin plugin) {
         super(plugin);
     }
 
     @Override
-    protected boolean onCommand(CommandSender sender, String label, String[] arguments)
-    {
+    protected boolean onCommand(CommandSender sender, String label, String[] arguments) {
         if (!(sender instanceof ConsoleCommandSender) && !sender.isOp())
             return true;
 

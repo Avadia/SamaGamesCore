@@ -23,7 +23,6 @@ import org.bukkit.command.CommandSender;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class CommandBukkitrefresh extends AbstractCommand {
-
     private final PermissionManager api;
 
     public CommandBukkitrefresh(APIPlugin plugin) {

@@ -3,7 +3,6 @@ package net.samagames.core.api.permissions;
 import net.samagames.api.permissions.IPermissionsEntity;
 import net.samagames.core.APIPlugin;
 import net.samagames.core.api.player.PlayerData;
-import net.samagames.persistanceapi.GameServiceManager;
 import net.samagames.persistanceapi.beans.permissions.PlayerPermissionsBean;
 import net.samagames.persistanceapi.beans.players.GroupsBean;
 import org.bukkit.Bukkit;
@@ -32,28 +31,24 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class PermissionEntity implements IPermissionsEntity {
-
-    private UUID uuid;
-    private APIPlugin plugin;
-    private final GameServiceManager manager;
+    private final UUID uuid;
+    private final APIPlugin plugin;
 
     private GroupsBean groupsBean;
 
     //private PermissionAttachment attachment;
 
-    private Map<String, Boolean> permissions = new HashMap<>();
+    private final Map<String, Boolean> permissions = new HashMap<>();
     private static final String key = "permissions:";
     private static final String subkeyPerms = ":list";
 
-    private PlayerData playerData;
+    private final PlayerData playerData;
 
     private PermissionAttachment attachment;
 
-    public PermissionEntity(UUID player, APIPlugin plugin)
-    {
+    public PermissionEntity(UUID player, APIPlugin plugin) {
         this.uuid = player;
         this.plugin = plugin;
-        this.manager = plugin.getGameServiceManager();
         this.playerData = plugin.getAPI().getPlayerManager().getPlayerData(player);
 
         //this.attachment = null;
@@ -61,16 +56,14 @@ public class PermissionEntity implements IPermissionsEntity {
     }
 
     @Override
-    public UUID getUUID()
-    {
+    public UUID getUUID() {
         return uuid;
     }
 
     @Override
-    public void refresh()
-    {
+    public void refresh() {
         //Jedis jedis = plugin.getDatabaseConnector().getBungeeResource();
-        try{
+        try {
 
             //Get group (static because easier for generation FUCK YOU if you comment this)
             //CacheLoader.load(jedis, key + uuid, groupsBean);
@@ -86,10 +79,8 @@ public class PermissionEntity implements IPermissionsEntity {
             //Get perm list
             //Map<String, String> datas = jedis.hgetAll(key + uuid + subkeyPerms);
             permissions.clear();
-            if (allPlayerPermission != null)
-            {
-                for (Map.Entry<String, Boolean> entry : allPlayerPermission.getHashMap().entrySet())
-                {
+            if (allPlayerPermission != null) {
+                for (Map.Entry<String, Boolean> entry : allPlayerPermission.getHashMap().entrySet()) {
                     //Save cache
                     permissions.put(entry.getKey(), entry.getValue());
                 }
@@ -97,45 +88,39 @@ public class PermissionEntity implements IPermissionsEntity {
 
             reloadPermissions(Bukkit.getPlayer(uuid));
 
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }/*finally {
             //jedis.close();
         }*/
     }
-    public void reloadPermissions(Player player)
-    {
+
+    public void reloadPermissions(Player player) {
         if (attachment != null) {
-            attachment.getPermissions().keySet().stream().forEach(attachment::unsetPermission);
+            attachment.getPermissions().keySet().forEach(attachment::unsetPermission);
         }
         applyPermissions(player);
     }
 
-    public void applyPermissions(Player player)
-    {
-        if(player != null)
-        {
+    public void applyPermissions(Player player) {
+        if (player != null) {
             if (attachment == null)
                 attachment = player.addAttachment(plugin);
 
-            for (Map.Entry<String, Boolean> data : permissions.entrySet())
-            {
+            for (Map.Entry<String, Boolean> data : permissions.entrySet()) {
                 //System.out.print("Permission " + data.getKey() + " value: " + data.getValue());
                 attachment.setPermission(data.getKey(), data.getValue());
             }
         }
     }
 
-    public void unloadPlayer(Player player)
-    {
+    public void unloadPlayer(Player player) {
         permissions.clear();
         reloadPermissions(player);
         attachment.remove();
     }
 
-    public GroupsBean getDisplayGroup()
-    {
+    public GroupsBean getDisplayGroup() {
         return (playerData.hasNickname()) ? plugin.getAPI().getPermissionsManager().getFakeGroupBean() : this.groupsBean;
     }
 
@@ -151,20 +136,17 @@ public class PermissionEntity implements IPermissionsEntity {
     }
 
     @Override
-    public String getDisplayPrefix()
-    {
+    public String getDisplayPrefix() {
         return formatText(getDisplayGroup().getPrefix());
     }
 
     @Override
-    public String getPrefix()
-    {
+    public String getPrefix() {
         return formatText(this.groupsBean.getPrefix());
     }
 
     @Override
-    public String getDisplaySuffix()
-    {
+    public String getDisplaySuffix() {
         return formatText(getDisplayGroup().getSuffix());
     }
 
@@ -203,20 +185,17 @@ public class PermissionEntity implements IPermissionsEntity {
         return formatText(this.groupsBean.getTag());
     }
 
-    private String formatText(String value)
-    {
+    private String formatText(String value) {
         if (value == null)
             return "";
         return ChatColor.translateAlternateColorCodes('&', value.replaceAll("&s", " "));
     }
 
-    public String getDisplayGroupName()
-    {
+    public String getDisplayGroupName() {
         return getDisplayGroup().getPgroupName();
     }
 
-    public String getGroupName()
-    {
+    public String getGroupName() {
         return this.groupsBean.getPgroupName();
     }
 

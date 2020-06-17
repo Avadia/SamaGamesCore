@@ -24,27 +24,23 @@ import org.bukkit.entity.Player;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CommandSpeakup extends AbstractCommand
-{
-    public CommandSpeakup(APIPlugin plugin)
-    {
+public class CommandSpeakup extends AbstractCommand {
+    public CommandSpeakup(APIPlugin plugin) {
         super(plugin);
     }
 
     @Override
-    protected boolean onCommand(CommandSender sender, String label, String[] arguments)
-    {
+    protected boolean onCommand(CommandSender sender, String label, String[] arguments) {
         if (!hasPermission(sender, "api.modo.speakup"))
             return true;
 
-        if(arguments.length == 0)
+        if (arguments.length == 0)
             return true;
 
         ChatColor color = ChatColor.BLUE;
         String tag = "Modération";
 
-        if (SamaGamesAPI.get().getPermissionsManager().getPlayer(((Player) sender).getUniqueId()).getGroupId() == 8)
-        {
+        if (SamaGamesAPI.get().getPermissionsManager().getPlayer(((Player) sender).getUniqueId()).getGroupId() == 8) {
             color = ChatColor.DARK_PURPLE;
             tag = "Animation";
         }

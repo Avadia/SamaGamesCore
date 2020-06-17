@@ -22,104 +22,84 @@ import java.util.*;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class FriendsManager implements IFriendsManager
-{
+public class FriendsManager implements IFriendsManager {
     private final ApiImplementation api;
 
-    private HashMap<UUID, FriendPlayer> cache;
+    private final HashMap<UUID, FriendPlayer> cache;
 
     private static final String key = "friends:";
 
-    public FriendsManager(ApiImplementation api)
-    {
+    public FriendsManager(ApiImplementation api) {
         this.api = api;
         this.cache = new HashMap<>();
     }
 
-    public void loadPlayer(UUID player)
-    {
-        try{
+    public void loadPlayer(UUID player) {
+        try {
             FriendPlayer friendPlayer = new FriendPlayer(player);
             Jedis jedis = api.getBungeeResource();
             Set<String> smembers = jedis.smembers(key + player);
             jedis.close();
-            for (String friend : smembers)
-            {
+            for (String friend : smembers) {
                 friendPlayer.addFriend(UUID.fromString(friend));
             }
             cache.put(player, friendPlayer);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void unloadPlayer(UUID player)
-    {
+    public void unloadPlayer(UUID player) {
         //We don't edit data here so remove cache (bungee side)
         cache.remove(player);
     }
 
     @Override
-    public boolean areFriends(UUID from, UUID isFriend)
-    {
-        if (cache.containsKey(from))
-        {
+    public boolean areFriends(UUID from, UUID isFriend) {
+        if (cache.containsKey(from)) {
             return cache.get(from).areFriend(isFriend);
-        }else
-        {
+        } else {
             return false;
         }
     }
 
     @Override
-    public List<String> namesFriendsList(UUID asking)
-    {
-        if (cache.containsKey(asking))
-        {
+    public List<String> namesFriendsList(UUID asking) {
+        if (cache.containsKey(asking)) {
             List<String> names = new ArrayList<>();
             FriendPlayer friendPlayer = cache.get(asking);
 
-            for (UUID uuid : friendPlayer.getFriends())
-            {
+            for (UUID uuid : friendPlayer.getFriends()) {
                 names.add(api.getUUIDTranslator().getName(uuid, false));
             }
 
             return names;
-        }else
-        {
+        } else {
             //TODO update player
             return null;
         }
     }
 
     @Override
-    public List<UUID> uuidFriendsList(UUID asking)
-    {
-        if (cache.containsKey(asking))
-        {
+    public List<UUID> uuidFriendsList(UUID asking) {
+        if (cache.containsKey(asking)) {
             FriendPlayer friendPlayer = cache.get(asking);
 
             return friendPlayer.getFriends();
-        }else
-        {
+        } else {
             //TODO update player
             return null;
         }
     }
 
-    public Map<UUID, String> associatedFriendsList(UUID asking)
-    {
-        if (cache.containsKey(asking))
-        {
+    public Map<UUID, String> associatedFriendsList(UUID asking) {
+        if (cache.containsKey(asking)) {
             HashMap<UUID, String> names = new HashMap<>();
             FriendPlayer friendPlayer = cache.get(asking);
 
-            for (UUID uuid : friendPlayer.getFriends())
-            {
+            for (UUID uuid : friendPlayer.getFriends()) {
                 String name;
-                if((name = api.getUUIDTranslator().getName(uuid, false)) != null)
-                {
+                if ((name = api.getUUIDTranslator().getName(uuid, false)) != null) {
                     continue;
                 }
 
@@ -127,37 +107,31 @@ public class FriendsManager implements IFriendsManager
             }
 
             return names;
-        }else
-        {
+        } else {
             //TODO update player
             return null;
         }
     }
 
-    public FriendPlayer getFriendPlayer(UUID uuid)
-    {
+    public FriendPlayer getFriendPlayer(UUID uuid) {
         return cache.get(uuid);
     }
 
     @Override
-    public List<String> requests(UUID asking)
-    {
+    public List<String> requests(UUID asking) {
         //Bungee side
         return null;
     }
 
     @Override
-    public List<String> sentRequests(UUID asking)
-    {
+    public List<String> sentRequests(UUID asking) {
         //Bungee side
         return null;
     }
 
     @Override
-    public boolean removeFriend(UUID asking, UUID target)
-    {
+    public boolean removeFriend(UUID asking, UUID target) {
         //Bungee side
         return false;
     }
-
 }

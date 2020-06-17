@@ -23,25 +23,21 @@ import java.util.List;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class StorageManager {
+    private final APIPlugin plugin;
 
-    private APIPlugin plugin;
-
-    public StorageManager(APIPlugin plugin)
-    {
-
+    public StorageManager(APIPlugin plugin) {
         this.plugin = plugin;
 
         File file = new File(plugin.getDataFolder().getAbsoluteFile().getParentFile().getParentFile(), "spigot.yml");
         saveFile(file, "test");
     }
 
-    public void saveGameFile(File file, String game, String player)
-    {
+    public void saveGameFile(File file, String game, String player) {
         saveFile(file, game + "/" + player);
     }
 
-    public void saveFile(File file, String folder)
-    {
+    @SuppressWarnings("CatchMayIgnoreException")
+    public void saveFile(File file, String folder) {
         String charset = "UTF-8";
         String target = plugin.getDataUrl() + "/storage/index.php?path=" + folder;
         try {

@@ -18,8 +18,7 @@ import net.samagames.core.api.hydroangeas.connection.Packet;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class QueuePacket extends Packet
-{
+public class QueuePacket extends Packet {
     public enum TypeQueue {NAMEDID, NAMED, RANDOM, FAST}
 
     private String game;
@@ -27,39 +26,34 @@ public class QueuePacket extends Packet
     private String templateID;
     private TypeQueue typeQueue;
 
-    public QueuePacket() {}
+    public QueuePacket() {
+    }
 
-    public QueuePacket(TypeQueue typeQueue, String game, String map)
-    {
+    public QueuePacket(TypeQueue typeQueue, String game, String map) {
         this(typeQueue, game + "_" + map);
 
         this.game = game;
         this.map = map;
     }
 
-    public QueuePacket(TypeQueue typeQueue, String templateID)
-    {
+    public QueuePacket(TypeQueue typeQueue, String templateID) {
         this.typeQueue = typeQueue;
         this.templateID = templateID;
     }
 
-    public TypeQueue getTypeQueue()
-    {
+    public TypeQueue getTypeQueue() {
         return this.typeQueue;
     }
 
-    public String getTemplateID()
-    {
+    public String getTemplateID() {
         return this.templateID;
     }
 
-    public String getMap()
-    {
+    public String getMap() {
         return this.map;
     }
 
-    public String getGame()
-    {
+    public String getGame() {
         return this.game;
     }
 }

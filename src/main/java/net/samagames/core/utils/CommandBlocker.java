@@ -2,14 +2,12 @@ package net.samagames.core.utils;
 
 import net.samagames.tools.Reflection;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /*
  * This file is part of SamaGamesCore.
@@ -27,8 +25,7 @@ import java.util.Set;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CommandBlocker
-{
+public class CommandBlocker {
     private static final String MINECRAFT_PREFIX = "minecraft";
     private static final String BUKKIT_PREFIX = "bukkit";
     private static final String SPIGOT_PREFIX = "spigot";
@@ -39,10 +36,8 @@ public class CommandBlocker
     private static final String VIAVERSION_PREFIX = "viaversion";
     private static final String WORLDEDIT_PREFIX = "worldedit";
 
-    public static void removeCommands()
-    {
-        try
-        {
+    public static void removeCommands() {
+        try {
             // Minecraft
             removeCommand(MINECRAFT_PREFIX, "help");
             removeCommand(MINECRAFT_PREFIX, "tell");
@@ -76,46 +71,35 @@ public class CommandBlocker
 
             // WorldEdit
             removeCommand(WORLDEDIT_PREFIX, "*");
-        }
-        catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
-        {
+        } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
 
-    private static void removeCommand(String prefix, String... str) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException
-    {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void removeCommand(String prefix, String... str) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         SimpleCommandMap scm = getCommandMap();
         Map knownCommands = (Map) Reflection.getValue(scm, true, "knownCommands");
 
-        for (String cmd : str)
-        {
-            if (cmd.equals("*"))
-            {
-                for (String knownCommand : new HashSet<String>(knownCommands.keySet()))
-                {
-                    if (knownCommand.startsWith(prefix))
-                    {
+        for (String cmd : str) {
+            if (cmd.equals("*")) {
+                for (String knownCommand : new HashSet<String>(knownCommands.keySet())) {
+                    if (knownCommand.startsWith(prefix)) {
                         knownCommands.remove(knownCommand);
 
-                        if (knownCommands.containsKey(":") && knownCommands.containsKey(knownCommand.split(":")[1]))
+                        if (knownCommands.containsKey(":"))
                             knownCommands.remove(knownCommand.split(":")[1]);
                     }
                 }
-            }
-            else
-            {
-                if (knownCommands.containsKey(cmd))
-                    knownCommands.remove(cmd);
+            } else {
+                knownCommands.remove(cmd);
 
-                if (knownCommands.containsKey(prefix + ":" + cmd))
-                    knownCommands.remove(prefix + ":" + cmd);
+                knownCommands.remove(prefix + ":" + cmd);
             }
         }
     }
 
-    private static SimpleCommandMap getCommandMap() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
-    {
+    private static SimpleCommandMap getCommandMap() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Class<?> craftServerClass = Reflection.getOBCClass("CraftServer");
         Method getCommandMapMethod = craftServerClass.getMethod("getCommandMap");
 

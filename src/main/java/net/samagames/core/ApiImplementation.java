@@ -50,8 +50,7 @@ import redis.clients.jedis.Jedis;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ApiImplementation extends SamaGamesAPI
-{
+public class ApiImplementation extends SamaGamesAPI {
     private static final String SLACK_LOGS_WEBHOOK_URL = "https://hooks.slack.com/services/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";
 
     private final APIPlugin plugin;
@@ -73,16 +72,15 @@ public class ApiImplementation extends SamaGamesAPI
     private final AchievementManager achievementManager;
     private GameManager gameManager;
 
-    private StorageManager storageManager;
+    private final StorageManager storageManager;
 
-    private RemoteAccessManager remoteAccessManager;
+    private final RemoteAccessManager remoteAccessManager;
 
     private final ServerOptions serverOptions;
 
     private boolean keepCache = false;
 
-    public ApiImplementation(APIPlugin plugin)
-    {
+    public ApiImplementation(APIPlugin plugin) {
         super(plugin);
 
         this.plugin = plugin;
@@ -140,7 +138,7 @@ public class ApiImplementation extends SamaGamesAPI
             e.printStackTrace();
         }
 
-        PartyListener partyListener = new PartyListener(plugin, getPartiesManager());
+        PartyListener partyListener = new PartyListener(getPartiesManager());
         this.pubSub.subscribe("parties.disband", partyListener);
         this.pubSub.subscribe("parties.leave", partyListener);
         this.pubSub.subscribe("parties.kick", partyListener);
@@ -148,23 +146,19 @@ public class ApiImplementation extends SamaGamesAPI
         this.pubSub.subscribe("parties.lead", partyListener);
     }
 
-    public void onShutdown()
-    {
+    private static Slack getSlackPublisher() {
+        return new Slack(ApiImplementation.SLACK_LOGS_WEBHOOK_URL).icon(":smiley_cat:").sendToChannel("_developpement-logs").displayName("Meow");
+    }
+
+    public void onShutdown() {
         this.playerDataManager.onShutdown();
 
         this.pubSub.disable();
     }
 
     @Override
-    public PermissionManager getPermissionsManager()
-    {
+    public PermissionManager getPermissionsManager() {
         return permissionsManager;
-    }
-
-    @Override
-    public NPCManager getNPCManager()
-    {
-        return npcManager;
     }
 
     @Override
@@ -173,125 +167,104 @@ public class ApiImplementation extends SamaGamesAPI
     }
 
     @Override
-    public ResourcePacksManagerImpl getResourcePacksManager()
-    {
+    public NPCManager getNPCManager() {
+        return npcManager;
+    }
+
+    @Override
+    public ResourcePacksManagerImpl getResourcePacksManager() {
         return resourcePacksManager;
     }
 
     @Override
-    public FriendsManager getFriendsManager()
-    {
+    public FriendsManager getFriendsManager() {
         return friendsManager;
     }
 
     @Override
-    public APIPlugin getPlugin()
-    {
+    public APIPlugin getPlugin() {
         return plugin;
     }
 
     @Override
-    public GameManager getGameManager()
-    {
+    public GameManager getGameManager() {
         return (gameManager == null) ? (this.gameManager = new GameManager(this)) : this.gameManager;
     }
 
     @Override
-    public PartiesManager getPartiesManager()
-    {
+    public PartiesManager getPartiesManager() {
         return partiesManager;
     }
 
     @Override
-    public SkyFactory getSkyFactory()
-    {
+    public SkyFactory getSkyFactory() {
         return skyFactory;
     }
 
     @Override
-    public CameraManager getCameraManager()
-    {
+    public CameraManager getCameraManager() {
         return cameraManager;
     }
 
     @Override
-    public Slack getSlackLogsPublisher()
-    {
-        return getSlackPublisher(SLACK_LOGS_WEBHOOK_URL, "_developpement-logs");
+    public Slack getSlackLogsPublisher() {
+        return getSlackPublisher();
     }
 
     @Override
-    public JoinManagerImplement getJoinManager()
-    {
+    public JoinManagerImplement getJoinManager() {
         return joinManager;
     }
 
     @Override
-    public StatsManager getStatsManager()
-    {
+    public StatsManager getStatsManager() {
         return statsManager;
     }
 
     @Override
-    public ShopsManager getShopsManager()
-    {
+    public ShopsManager getShopsManager() {
         return this.shopsManager;
     }
 
     @Override
-    public GuiManager getGuiManager()
-    {
+    public GuiManager getGuiManager() {
         return guiManager;
     }
 
     @Override
-    public SettingsManager getSettingsManager()
-    {
+    public SettingsManager getSettingsManager() {
         return settingsManager;
     }
 
     @Override
-    public PlayerDataManager getPlayerManager()
-    {
+    public PlayerDataManager getPlayerManager() {
         return playerDataManager;
     }
 
     @Override
-    public AchievementManager getAchievementManager()
-    {
+    public AchievementManager getAchievementManager() {
         return achievementManager;
     }
 
-    public PubSubAPI getPubSub()
-    {
+    public PubSubAPI getPubSub() {
         return pubSub;
     }
 
     @Override
-    public UUIDTranslator getUUIDTranslator()
-    {
+    public UUIDTranslator getUUIDTranslator() {
         return uuidTranslator;
     }
 
-    public Jedis getBungeeResource()
-    {
+    public Jedis getBungeeResource() {
         return plugin.getDatabaseConnector().getBungeeResource();
     }
 
-    public GameServiceManager getGameServiceManager()
-    {
+    public GameServiceManager getGameServiceManager() {
         return plugin.getGameServiceManager();
     }
 
-    public HydroangeasManager getHydroangeasManager()
-    {
+    public HydroangeasManager getHydroangeasManager() {
         return plugin.getHydroangeasManager();
-    }
-
-    @Override
-    public String getServerName()
-    {
-        return plugin.getServerName();
     }
 
     public boolean isKeepCache() {
@@ -310,8 +283,8 @@ public class ApiImplementation extends SamaGamesAPI
         return storageManager;
     }
 
-    private static Slack getSlackPublisher(String webhookUrl, String targetChannel)
-    {
-        return new Slack(webhookUrl).icon(":smiley_cat:").sendToChannel(targetChannel).displayName("Meow");
+    @Override
+    public String getServerName() {
+        return plugin.getServerName();
     }
 }

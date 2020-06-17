@@ -35,59 +35,50 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class JoinManagerImplement implements IJoinManager
-{
+public class JoinManagerImplement implements IJoinManager {
     private final TreeMap<Integer, IJoinHandler> joiners = new TreeMap<>();
     private final List<UUID> moderatorsExpected = new ArrayList<>();
     private final List<UUID> playersExpected = new ArrayList<>();
     private final boolean isPartyLimited;
 
-    private ApiImplementation api;
+    private final ApiImplementation api;
 
-    public JoinManagerImplement(ApiImplementation api)
-    {
+    public JoinManagerImplement(ApiImplementation api) {
         this.api = api;
         this.isPartyLimited = !api.getPlugin().isHub();
     }
 
-    private boolean isPartyLimited()
-    {
+    private boolean isPartyLimited() {
         return this.isPartyLimited;
     }
 
     @Override
-    public void registerHandler(IJoinHandler handler, int priority)
-    {
+    public void registerHandler(IJoinHandler handler, int priority) {
         this.joiners.put(priority, handler);
     }
 
     @Override
-    public int countExpectedPlayers()
-    {
+    public int countExpectedPlayers() {
         return this.getExpectedPlayers().size() + this.getModeratorsExpected().size();
     }
 
     @Override
-    public List<UUID> getExpectedPlayers()
-    {
+    public List<UUID> getExpectedPlayers() {
         return this.playersExpected;
     }
 
 
-    private JoinResponse requestSoloJoin(UUID player)
-    {
+    private JoinResponse requestSoloJoin(UUID player) {
         JoinResponse response = new JoinResponse();
 
-        for (IJoinHandler handler : this.joiners.values())
-        {
+        for (IJoinHandler handler : this.joiners.values()) {
             response = handler.requestJoin(player, response);
 
             if (!response.isAllowed())
                 break;
         }
 
-        if (response.isAllowed())
-        {
+        if (response.isAllowed()) {
             playersExpected.add(player);
             Bukkit.getScheduler().runTaskLater(APIPlugin.getInstance(), () -> playersExpected.remove(player), 20 * 15L);
         }
@@ -95,27 +86,23 @@ public class JoinManagerImplement implements IJoinManager
         return response;
     }
 
-    public JoinResponse requestPartyJoin(Party party, UUID joiningPlayer, boolean alreadyConnected)
-    {
+    public JoinResponse requestPartyJoin(Party party, UUID joiningPlayer, boolean alreadyConnected) {
         UUID leader = party.getLeader();
         List<UUID> members = party.getPlayers();
 
         JoinResponse response = new JoinResponse();
 
         //On verifie que l'equipe peu rejoindre
-        for (IJoinHandler handler : joiners.values())
-        {
+        for (IJoinHandler handler : joiners.values()) {
             response = handler.requestPartyJoin(party.getParty(), joiningPlayer, response);
 
             if (!response.isAllowed())
                 break;
         }
 
-        if (response.isAllowed())
-        {
+        if (response.isAllowed()) {
             //C'est bon, si c'est le leader on teleporte toute la partie
-            if(leader.equals(joiningPlayer) && !alreadyConnected)
-            {
+            if (leader.equals(joiningPlayer) && !alreadyConnected) {
                 members.stream()
                         .filter(player ->
                                 Bukkit.getPlayer(player) == null && !player.equals(joiningPlayer))
@@ -139,34 +126,28 @@ public class JoinManagerImplement implements IJoinManager
         return response;
     }
 
-    public JoinResponse requestPartyJoin(Party party)
-    {
+    public JoinResponse requestPartyJoin(Party party) {
         return requestPartyJoin(party, party.getLeader(), false);
     }
 
-    public JoinResponse requestJoin(UUID player, boolean alreadyConnected)
-    {
+    public JoinResponse requestJoin(UUID player, boolean alreadyConnected) {
         Party party = this.api.getPartiesManager().getPartyForPlayer(player);
-        if (party != null && isPartyLimited())
-        {
+        if (party != null && isPartyLimited()) {
             return requestPartyJoin(party, player, alreadyConnected);
         }
 
         return requestSoloJoin(player);
     }
 
-    public void onLogin(AsyncPlayerPreLoginEvent event)
-    {
+    public void onLogin(AsyncPlayerPreLoginEvent event) {
         UUID player = event.getUniqueId();
 
         if (moderatorsExpected.contains(player)) // On traite après
             return;
 
-        if(!playersExpected.contains(player))
-        {
+        if (!playersExpected.contains(player)) {
             JoinResponse response = requestJoin(event.getUniqueId(), true);
-            if (!response.isAllowed())
-            {
+            if (!response.isAllowed()) {
                 event.disallow(Result.KICK_OTHER, ChatColor.RED + response.getReason());
                 return;
             }
@@ -178,10 +159,8 @@ public class JoinManagerImplement implements IJoinManager
             handler.onLogin(player, event.getName());
     }
 
-    public void onJoin(Player player)
-    {
-        if (moderatorsExpected.contains(player.getUniqueId()))
-        {
+    public void onJoin(Player player) {
+        if (moderatorsExpected.contains(player.getUniqueId())) {
             for (IJoinHandler handler : joiners.values())
                 handler.onModerationJoin(player);
 
@@ -192,27 +171,22 @@ public class JoinManagerImplement implements IJoinManager
             handler.finishJoin(player);
     }
 
-    public void onLogout(Player player)
-    {
-        if (moderatorsExpected.contains(player.getUniqueId()))
-        {
+    public void onLogout(Player player) {
+        if (moderatorsExpected.contains(player.getUniqueId())) {
             moderatorsExpected.remove(player.getUniqueId());
             return;
         }
 
-        for (IJoinHandler handler : joiners.values())
-        {
+        for (IJoinHandler handler : joiners.values()) {
             handler.onLogout(player);
         }
     }
 
-    public void addModerator(UUID moderator)
-    {
+    public void addModerator(UUID moderator) {
         moderatorsExpected.add(moderator);
     }
 
-    public List<UUID> getModeratorsExpected()
-    {
+    public List<UUID> getModeratorsExpected() {
         return moderatorsExpected;
     }
 }

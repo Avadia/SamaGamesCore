@@ -22,8 +22,7 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class QueueInfosUpdatePacket extends Packet
-{
+public class QueueInfosUpdatePacket extends Packet {
     private Type type;
     private boolean success;
     private String errorMessage;
@@ -35,61 +34,52 @@ public class QueueInfosUpdatePacket extends Packet
 
     private QPlayer player;
 
-    public QueueInfosUpdatePacket() {}
+    public QueueInfosUpdatePacket() {
+    }
 
-    public QueueInfosUpdatePacket(QPlayer player, Type type, boolean success, String errorMessage)
-    {
+    public QueueInfosUpdatePacket(QPlayer player, Type type, boolean success, String errorMessage) {
         this.player = player;
         this.type = type;
         this.success = success;
         this.errorMessage = errorMessage;
     }
 
-    public QueueInfosUpdatePacket(QPlayer player, Type type, String game, String map)
-    {
+    public QueueInfosUpdatePacket(QPlayer player, Type type, String game, String map) {
         this.player = player;
         this.type = type;
         this.game = game;
         this.map = map;
     }
 
-    public Type getType()
-    {
+    public Type getType() {
         return this.type;
     }
 
-    public boolean isSuccess()
-    {
+    public boolean isSuccess() {
         return this.success;
     }
 
-    public String getErrorMessage()
-    {
+    public String getErrorMessage() {
         return this.errorMessage;
     }
 
-    public String getGame()
-    {
+    public String getGame() {
         return this.game;
     }
 
-    public String getMap()
-    {
+    public String getMap() {
         return this.map;
     }
 
-    public QPlayer getPlayer()
-    {
+    public QPlayer getPlayer() {
         return this.player;
     }
 
-    public List<String> getMessage()
-    {
+    public List<String> getMessage() {
         return this.message;
     }
 
-    public void setMessage(List<String> message)
-    {
+    public void setMessage(List<String> message) {
         this.message = message;
     }
 

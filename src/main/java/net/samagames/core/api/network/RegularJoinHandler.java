@@ -24,28 +24,22 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class RegularJoinHandler implements IPacketsReceiver
-{
-
+public class RegularJoinHandler implements IPacketsReceiver {
     private final JoinManagerImplement manager;
 
-    public RegularJoinHandler(JoinManagerImplement manager)
-    {
+    public RegularJoinHandler(JoinManagerImplement manager) {
         this.manager = manager;
     }
 
     @Override
-    public void receive(String channel, String packet)
-    {
+    public void receive(String channel, String packet) {
         UUID player = UUID.fromString(packet);
         JoinResponse response = manager.requestJoin(player, false);
-        if (!response.isAllowed())
-        {
+        if (!response.isAllowed()) {
             TextComponent component = new TextComponent(response.getReason());
             component.setColor(ChatColor.RED);
             SamaGamesAPI.get().getPlayerManager().sendMessage(player, component);
-        } else
-        {
+        } else {
             SamaGamesAPI.get().getPlayerManager().connectToServer(player, SamaGamesAPI.get().getServerName());
             SamaGamesAPI.get().getGameManager().refreshArena();
         }

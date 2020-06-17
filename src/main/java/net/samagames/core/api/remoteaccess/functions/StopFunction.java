@@ -24,11 +24,8 @@ import javax.management.modelmbean.ModelMBeanOperationInfo;
  */
 @RemoteObject(description = "Stop Management")
 public class StopFunction {
-
     @RemoteMethod(description = "Shutdown a server", impact = ModelMBeanOperationInfo.ACTION)
-    public void stop()
-    {
+    public void stop() {
         Bukkit.getServer().shutdown();
     }
-
 }

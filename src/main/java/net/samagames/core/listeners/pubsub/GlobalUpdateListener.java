@@ -28,9 +28,8 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class GlobalUpdateListener implements IPacketsReceiver {
-
     private final APIPlugin plugin;
-    private ApiImplementation api;
+    private final ApiImplementation api;
     private final Gson gson;
 
     public GlobalUpdateListener(APIPlugin plugin) {
@@ -39,60 +38,52 @@ public class GlobalUpdateListener implements IPacketsReceiver {
         this.gson = new GsonBuilder().create();
     }
 
+    @SuppressWarnings("CatchMayIgnoreException")
     @Override
     public void receive(String channel, String packet) {
-
-        if (channel.equals("global"))
-        {
-            if (packet.equalsIgnoreCase("reboot"))
-            {
-                plugin.getServer().shutdown();
-            } else if (packet.equalsIgnoreCase("rebootIfEmpty"))
-            {
-                if (plugin.getServer().getOnlinePlayers().size() == 0)
+        switch (channel) {
+            case "global":
+                if (packet.equalsIgnoreCase("reboot")) {
                     plugin.getServer().shutdown();
-            }
-        }else if (channel.equals("groupchange"))
-        {
-            try
-            {
-                GroupChangePacket packetObj = gson.fromJson(packet, GroupChangePacket.class);
-                PermissionEntity user = api.getPermissionsManager().getPlayer(packetObj.playerUUID);
-                user.refresh();
-            } catch (JsonSyntaxException ignored)
-            {
-                //To be sure
-                ignored.printStackTrace();
-            }
-
-        }else if (channel.equals("networkEvent_WillQuit"))
-        {
-            try
-            {
-                PlayerLeaveEvent packetObj = gson.fromJson(packet, PlayerLeaveEvent.class);
-                if (Bukkit.getPlayer(packetObj.player) != null)
-                {
-                    plugin.getGlobalJoinListener().onWillLeave(packetObj.player, packetObj.targetServer);
+                } else if (packet.equalsIgnoreCase("rebootIfEmpty")) {
+                    if (plugin.getServer().getOnlinePlayers().size() == 0)
+                        plugin.getServer().shutdown();
                 }
-            } catch (JsonSyntaxException ignored)
-            {
-                //To be sure
-                ignored.printStackTrace();
-            }
+                break;
+            case "groupchange":
+                try {
+                    GroupChangePacket packetObj = gson.fromJson(packet, GroupChangePacket.class);
+                    PermissionEntity user = api.getPermissionsManager().getPlayer(packetObj.playerUUID);
+                    user.refresh();
+                } catch (JsonSyntaxException ignored) {
+                    //To be sure
+                    ignored.printStackTrace();
+                }
+
+                break;
+            case "networkEvent_WillQuit":
+                try {
+                    PlayerLeaveEvent packetObj = gson.fromJson(packet, PlayerLeaveEvent.class);
+                    if (Bukkit.getPlayer(packetObj.player) != null) {
+                        plugin.getGlobalJoinListener().onWillLeave(packetObj.player, packetObj.targetServer);
+                    }
+                } catch (JsonSyntaxException ignored) {
+                    //To be sure
+                    ignored.printStackTrace();
+                }
+                break;
         }
         //TODO listen shit
 
     }
 
-    private class GroupChangePacket
-    {
+    private static class GroupChangePacket {
         private String type;
         private UUID playerUUID;
         private String target;
     }
 
-    public class PlayerLeaveEvent
-    {
+    public static class PlayerLeaveEvent {
         private UUID player;
         private String targetServer;
     }

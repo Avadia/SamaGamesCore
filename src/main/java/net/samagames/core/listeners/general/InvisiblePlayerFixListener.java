@@ -23,76 +23,69 @@ import org.bukkit.event.player.PlayerLoginEvent;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class InvisiblePlayerFixListener implements Listener
-{
+public class InvisiblePlayerFixListener implements Listener {
     private final APIPlugin pluginAPI;
 
-    public InvisiblePlayerFixListener(APIPlugin pluginAPI)
-    {
+    public InvisiblePlayerFixListener(APIPlugin pluginAPI) {
         this.pluginAPI = pluginAPI;
     }
 
     @EventHandler
-    public void onPlayerLogin(PlayerLoginEvent event)
-    {
+    public void onPlayerLogin(PlayerLoginEvent event) {
         //Don't force if player is hided moderator
         Bukkit.getScheduler().runTaskLater(pluginAPI, () -> {
-            if(!pluginAPI.getAPI().getJoinManager().getModeratorsExpected().contains(event.getPlayer().getUniqueId()))
-            {
-                try{
+            if (!pluginAPI.getAPI().getJoinManager().getModeratorsExpected().contains(event.getPlayer().getUniqueId())) {
+                try {
                     sendPlayerToAll(event.getPlayer());
                     sendAllToPlayer(event.getPlayer());
-                }catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }, 5L);
     }
 
-    public void sendAllToPlayer(Player current)
-    {
+    public void sendAllToPlayer(Player current) {
         if (current == null)
             return;
         //final EntityPlayer currentNMS = ((CraftPlayer) current).getHandle();
-       // Bukkit.getScheduler().runTaskAsynchronously(pluginAPI, () -> {
+        // Bukkit.getScheduler().runTaskAsynchronously(pluginAPI, () -> {
 
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player == null || current.getName().equals(player.getName()))
-                    continue;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player == null || current.getName().equals(player.getName()))
+                continue;
 
-                current.hidePlayer(player);
-                //TODO show if not moderator
-                current.showPlayer(player);
+            current.hidePlayer(pluginAPI.getAPI().getPlugin(), player);
+            //TODO show if not moderator
+            current.showPlayer(pluginAPI.getAPI().getPlugin(), player);
 
                 /*
                 EntityPlayer entity = ((CraftPlayer) player).getHandle();
                 if (entity == null || currentNMS == null || currentNMS.playerConnection == null)
                     continue;
                 currentNMS.playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, entity));*/
-            }
-       // });
+        }
+        // });
     }
 
-    public void sendPlayerToAll(Player current)
-    {
+    public void sendPlayerToAll(Player current) {
         if (current == null)
             return;
-       // final EntityPlayer currentNMS = ((CraftPlayer) current).getHandle();
-       // Bukkit.getScheduler().runTaskAsynchronously(pluginAPI, () -> {
-            //PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, currentNMS);
+        // final EntityPlayer currentNMS = ((CraftPlayer) current).getHandle();
+        // Bukkit.getScheduler().runTaskAsynchronously(pluginAPI, () -> {
+        //PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, currentNMS);
 
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (p == null || current.getName().equals(p.getName()))
-                    continue;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p == null || current.getName().equals(p.getName()))
+                continue;
 
-                p.hidePlayer(current);
-                p.showPlayer(current);
+            p.hidePlayer(pluginAPI.getAPI().getPlugin(), current);
+            p.showPlayer(pluginAPI.getAPI().getPlugin(), current);
                 /*EntityPlayer entity = ((CraftPlayer) p).getHandle();
                 if (entity == null|| currentNMS == null || entity.playerConnection == null)
                     continue;
                 entity.playerConnection.sendPacket(packet);*/
-            }
+        }
         //});
     }
 

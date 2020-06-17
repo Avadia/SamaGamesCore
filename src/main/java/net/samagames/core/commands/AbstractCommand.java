@@ -25,31 +25,30 @@ import org.bukkit.entity.Player;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public abstract class AbstractCommand implements CommandExecutor {
+    protected final APIPlugin plugin;
 
-	protected final APIPlugin plugin;
+    public AbstractCommand(APIPlugin plugin) {
+        this.plugin = plugin;
+    }
 
-	public AbstractCommand(APIPlugin plugin) {
-		this.plugin = plugin;
-	}
+    @Override
+    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+        return onCommand(commandSender, s, strings);
+    }
 
-	@Override
-	public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-		return onCommand(commandSender, s, strings);
-	}
+    protected abstract boolean onCommand(CommandSender sender, String label, String[] arguments);
 
-	protected abstract boolean onCommand(CommandSender sender, String label, String[] arguments);
+    protected boolean hasPermission(CommandSender sender, String permission) {
+        if (sender instanceof ConsoleCommandSender || sender.isOp())
+            return true;
 
-	protected boolean hasPermission(CommandSender sender, String permission) {
-		if (sender instanceof ConsoleCommandSender || sender.isOp())
-			return true;
+        boolean result = false;
+        if (sender instanceof Player)
+            result = plugin.getAPI().getPermissionsManager().hasPermission(sender, permission);
 
-		boolean result = false;
-		if (sender instanceof Player)
-			result = plugin.getAPI().getPermissionsManager().hasPermission(sender, permission);
+        if (!result)
+            sender.sendMessage(ChatColor.RED + "Vous n'avez pas le droit de faire ça.");
 
-		if (!result)
-			sender.sendMessage(ChatColor.RED + "Vous n'avez pas le droit de faire ça.");
-
-		return result;
-	}
+        return result;
+    }
 }

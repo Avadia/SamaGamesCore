@@ -26,26 +26,23 @@ import org.bukkit.inventory.PlayerInventory;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ArmorModule implements Listener{
+public class ArmorModule implements Listener {
+    private final ApiImplementation api;
 
-
-    private ApiImplementation api;
-
-    public ArmorModule(ApiImplementation api)
-    {
+    public ArmorModule(ApiImplementation api) {
 
         this.api = api;
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler(
             priority = EventPriority.LOW
     )
     public void onEntityDamage(EntityDamageEvent event) {
-        if (api.getGameManager().isLegacyPvP())
-        {
+        if (api.getGameManager().isLegacyPvP()) {
             Entity entity = event.getEntity();
-            if(entity instanceof Player) {
-                Player player = (Player)entity;
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
                 double baseDamage = event.getDamage(EntityDamageEvent.DamageModifier.BASE);
                 int defensePoints = this.getDefensePoints(player.getInventory());
                 double armorDamage = baseDamage * this.getLegacyDamageFactor(defensePoints);
@@ -71,16 +68,16 @@ public class ArmorModule implements Listener{
     }
 
     private int getDefensePoints(ItemStack armorPiece) {
-        return armorPiece == null?0:Armor.getForType(armorPiece.getType()).getDefensePoints();
+        return armorPiece == null ? 0 : Armor.getForType(armorPiece.getType()).getDefensePoints();
     }
 
     private double getLegacyDamageFactor(int defensePoints) {
         int percent = 4 * defensePoints;
-        return 1.0D - (double)percent / 100.0D;
+        return 1.0D - (double) percent / 100.0D;
     }
 
     private double getCurrentDamageFactor(int defensePoints, double damage) {
-        return 1.0D - Math.max((double)defensePoints / 5.0D, (double)defensePoints - damage / 2.0D) / 25.0D;
+        return 1.0D - Math.max((double) defensePoints / 5.0D, (double) defensePoints - damage / 2.0D) / 25.0D;
     }
 
 }

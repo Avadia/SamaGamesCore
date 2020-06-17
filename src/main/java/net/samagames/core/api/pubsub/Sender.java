@@ -24,70 +24,54 @@ import java.util.concurrent.LinkedBlockingQueue;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Sender implements Runnable, ISender
-{
-
+class Sender implements Runnable, ISender {
     private final LinkedBlockingQueue<PendingMessage> pendingMessages = new LinkedBlockingQueue<>();
     private final ApiImplementation connector;
     private Jedis jedis;
 
-    public Sender(ApiImplementation connector)
-    {
+    public Sender(ApiImplementation connector) {
         this.connector = connector;
     }
 
-    public void publish(PendingMessage message)
-    {
+    public void publish(PendingMessage message) {
         pendingMessages.add(message);
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         fixDatabase();
-        while (true)
-        {
+        while (true) {
             PendingMessage message;
-            try
-            {
+            try {
                 message = pendingMessages.take();
-            } catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
                 jedis.close();
                 return;
             }
 
             boolean published = false;
-            while (!published)
-            {
-                try
-                {
+            while (!published) {
+                try {
                     jedis.publish(message.getChannel(), message.getMessage());
                     message.runAfter();
                     published = true;
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     fixDatabase();
                 }
             }
         }
     }
 
-    private void fixDatabase()
-    {
-        try
-        {
+    private void fixDatabase() {
+        try {
             jedis = connector.getBungeeResource();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             APIPlugin.getInstance().getLogger().severe("[Publisher] Cannot connect to redis server : " + e.getMessage() + ". Retrying in 5 seconds.");
-            try
-            {
+            try {
                 Thread.sleep(5000);
                 fixDatabase();
-            } catch (InterruptedException e1)
-            {
+            } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
         }

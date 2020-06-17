@@ -31,22 +31,19 @@ import java.util.concurrent.TimeUnit;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class AchievementManager implements IAchievementManager
-{
+public class AchievementManager implements IAchievementManager {
     private Achievement[] achievementsCache;
     private AchievementCategory[] achievementCategoriesCache;
-    private ApiImplementation api;
+    private final ApiImplementation api;
 
-    public AchievementManager(ApiImplementation api)
-    {
+    public AchievementManager(ApiImplementation api) {
         this.api = api;
         this.achievementsCache = new Achievement[0];
         this.achievementCategoriesCache = new AchievementCategory[0];
 
         api.getPlugin().getExecutor().schedule(() ->
         {
-            try
-            {
+            try {
                 List<AchievementCategoryBean> categoryBeanList = api.getGameServiceManager().getAchievementCategories();
                 List<AchievementCategory> categories = new ArrayList<>();
 
@@ -58,8 +55,7 @@ public class AchievementManager implements IAchievementManager
 
                 Achievement[] achievementsCache = new Achievement[n == 0 ? 0 : Math.max(n, allAchievements.get(n - 1).getAchievementId())];
 
-                for (AchievementBean bean : allAchievements)
-                {
+                for (AchievementBean bean : allAchievements) {
                     AchievementCategory category = categories.stream().filter(achievementCategory -> achievementCategory.getID() == bean.getCategoryId()).findFirst().orElse(null);
 
                     if (bean.getProgressTarget() == 1)
@@ -73,18 +69,14 @@ public class AchievementManager implements IAchievementManager
 
                 this.achievementsCache = achievementsCache;//Avoid concurrent errors using temporary arrays
                 this.achievementCategoriesCache = achievementCategoriesCache;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }, 0, TimeUnit.MINUTES);
     }
 
-    public void loadPlayer(UUID uuid)
-    {
-        try
-        {
+    public void loadPlayer(UUID uuid) {
+        try {
             PlayerData playerData = this.api.getPlayerManager().getPlayerData(uuid);
             List<AchievementProgressBean> list = this.api.getGameServiceManager().getAchievementProgresses(playerData.getPlayerBean());
             list.forEach(bean ->
@@ -93,17 +85,13 @@ public class AchievementManager implements IAchievementManager
                 if (achievement != null)
                     achievement.addProgress(uuid, bean.getProgressId(), bean.getProgress(), bean.getStartDate(), bean.getUnlockDate());
             });
-        }
-        catch (Exception exception)
-        {
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
     }
 
-    public void unloadPlayer(UUID player)
-    {
-        for (Achievement achievement : this.achievementsCache)
-        {
+    public void unloadPlayer(UUID player) {
+        for (Achievement achievement : this.achievementsCache) {
             AchievementProgress progress = achievement.getProgress(player);
 
             if (progress == null || !progress.isChanged())
@@ -111,51 +99,43 @@ public class AchievementManager implements IAchievementManager
 
             AchievementProgressBean bean = new AchievementProgressBean(progress.getProgressId(), achievement.getID(), progress.getProgress(), progress.getStartTime(), progress.getUnlockTime(), player);
 
-            try
-            {
+            try {
                 if (progress.getProgressId() == -1)
                     this.api.getGameServiceManager().createAchievementProgress(this.api.getPlayerManager().getPlayerData(player).getPlayerBean(), bean);
                 else
                     this.api.getGameServiceManager().updateAchievementProgress(bean);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
     }
 
     @Override
-    public void incrementAchievement(UUID uuid, IncrementationAchievement incrementationAchievement, int amount)
-    {
+    public void incrementAchievement(UUID uuid, IncrementationAchievement incrementationAchievement, int amount) {
         incrementationAchievement.increment(uuid, amount);
     }
 
     @Override
-    public void incrementAchievement(UUID uuid, int id, int amount)
-    {
+    public void incrementAchievement(UUID uuid, int id, int amount) {
         Achievement achievement = this.getAchievementByID(id);
         Preconditions.checkNotNull(achievement, "Achievement with id " + id + " not found");
         if (achievement instanceof IncrementationAchievement)
-            ((IncrementationAchievement)achievement).increment(uuid, amount);
+            ((IncrementationAchievement) achievement).increment(uuid, amount);
         else
             throw new IllegalArgumentException("Achievement is not incrementable");
     }
 
     @Override
-    public void incrementAchievements(UUID uuid, int[] ids, int amount)
-    {
-        for (int id : ids)
-        {
+    public void incrementAchievements(UUID uuid, int[] ids, int amount) {
+        for (int id : ids) {
             Achievement achievement = this.getAchievementByID(id);
-            if (achievement != null && achievement instanceof IncrementationAchievement)
-                ((IncrementationAchievement)achievement).increment(uuid, amount);
+            if (achievement instanceof IncrementationAchievement)
+                ((IncrementationAchievement) achievement).increment(uuid, amount);
         }
     }
 
     @Override
-    public Achievement getAchievementByID(int id)
-    {
+    public Achievement getAchievementByID(int id) {
         for (Achievement achievement : this.achievementsCache)
             if (achievement.getID() == id)
                 return achievement;
@@ -164,8 +144,7 @@ public class AchievementManager implements IAchievementManager
     }
 
     @Override
-    public AchievementCategory getAchievementCategoryByID(int id)
-    {
+    public AchievementCategory getAchievementCategoryByID(int id) {
         for (AchievementCategory achievementCategory : this.achievementCategoriesCache)
             if (achievementCategory.getID() == id)
                 return achievementCategory;
@@ -174,26 +153,22 @@ public class AchievementManager implements IAchievementManager
     }
 
     @Override
-    public List<Achievement> getAchievements()
-    {
+    public List<Achievement> getAchievements() {
         return Arrays.asList(this.achievementsCache);
     }
 
     @Override
-    public List<AchievementCategory> getAchievementsCategories()
-    {
+    public List<AchievementCategory> getAchievementsCategories() {
         return Arrays.asList(this.achievementCategoriesCache);
     }
 
     @Override
-    public boolean isUnlocked(UUID uuid, Achievement achievement)
-    {
+    public boolean isUnlocked(UUID uuid, Achievement achievement) {
         return achievement.isUnlocked(uuid);
     }
 
     @Override
-    public boolean isUnlocked(UUID uuid, int id)
-    {
+    public boolean isUnlocked(UUID uuid, int id) {
         Achievement achievement = this.getAchievementByID(id);
         Preconditions.checkNotNull(achievement, "Achievement with id " + id + " not found");
         return achievement.isUnlocked(uuid);

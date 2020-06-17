@@ -1,7 +1,6 @@
 package net.samagames.core.api.parties;
 
 import net.samagames.api.pubsub.IPacketsReceiver;
-import net.samagames.core.APIPlugin;
 
 import java.util.UUID;
 
@@ -21,15 +20,10 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PartyListener implements IPacketsReceiver
-{
-
+public class PartyListener implements IPacketsReceiver {
     private final PartiesManager partiesManager;
-    private final APIPlugin plugin;
 
-    public PartyListener(APIPlugin plugin, PartiesManager partiesManager)
-    {
-        this.plugin = plugin;
+    public PartyListener(PartiesManager partiesManager) {
         this.partiesManager = partiesManager;
     }
 
@@ -42,17 +36,14 @@ public class PartyListener implements IPacketsReceiver
         String action = parts[1];
         String[] args = message.split(" ");
 
-        switch (action)
-        {
-            case "disband":
-            {
+        switch (action) {
+            case "disband": {
                 if (args.length < 1)
                     return;
 
                 UUID player = UUID.fromString(args[0]);
                 Party partyForPlayer = partiesManager.getPartyForPlayer(player);
-                if (partyForPlayer != null)
-                {
+                if (partyForPlayer != null) {
                     partyForPlayer.getPlayers().clear();
                     partiesManager.unloadParties();
                 }
@@ -62,8 +53,7 @@ public class PartyListener implements IPacketsReceiver
             case "kick":
             case "leave":
             case "lead":
-            case "disconnect":
-            {
+            case "disconnect": {
                 if (args.length < 2)
                     return;
 

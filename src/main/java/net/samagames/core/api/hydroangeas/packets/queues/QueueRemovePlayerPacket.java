@@ -18,19 +18,17 @@ import net.samagames.core.api.hydroangeas.QPlayer;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class QueueRemovePlayerPacket extends QueuePacket
-{
+public class QueueRemovePlayerPacket extends QueuePacket {
     private QPlayer player;
 
-    public QueueRemovePlayerPacket() {}
+    public QueueRemovePlayerPacket() {
+    }
 
-    public QueueRemovePlayerPacket(QPlayer player)
-    {
+    public QueueRemovePlayerPacket(QPlayer player) {
         this.player = player;
     }
 
-    public QPlayer getPlayer()
-    {
+    public QPlayer getPlayer() {
         return this.player;
     }
 }

@@ -23,8 +23,7 @@ import java.util.logging.Level;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ServerStatus
-{
+public class ServerStatus {
     private String bungeeName;
     private String game;
     private String map;
@@ -32,8 +31,7 @@ public class ServerStatus
     private int players;
     private int maxPlayers;
 
-    public ServerStatus(String bungeeName, String game, String map, Status status, int players, int maxPlayers)
-    {
+    public ServerStatus(String bungeeName, String game, String map, Status status, int players, int maxPlayers) {
         this.bungeeName = bungeeName;
         this.game = game;
         this.map = map;
@@ -42,8 +40,7 @@ public class ServerStatus
         this.maxPlayers = maxPlayers;
     }
 
-    public void sendToHubs()
-    {
+    public void sendToHubs() {
         String json = new Gson().toJson(this);
         SamaGamesAPI.get().getPubSub().send("serverUpdateChannel", json);
         //SamaGamesAPI.get().getPubSub().send("hubsChannel", json);
@@ -51,63 +48,51 @@ public class ServerStatus
         APIPlugin.log(Level.INFO, "Sended server status to Hydroangeas. (" + json + ")");
     }
 
-    public String getBungeeName()
-    {
+    public String getBungeeName() {
         return this.bungeeName;
     }
 
-    public void setBungeeName(String bungeeName)
-    {
+    public void setBungeeName(String bungeeName) {
         this.bungeeName = bungeeName;
     }
 
-    public String getGame()
-    {
+    public String getGame() {
         return this.game;
     }
 
-    public void setGame(String game)
-    {
+    public void setGame(String game) {
         this.game = game;
     }
 
-    public String getMap()
-    {
+    public String getMap() {
         return this.map;
     }
 
-    public void setMap(String map)
-    {
+    public void setMap(String map) {
         this.map = map;
     }
 
-    public Status getStatus()
-    {
+    public Status getStatus() {
         return this.status;
     }
 
-    public void setStatus(Status status)
-    {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    public int getPlayers()
-    {
+    public int getPlayers() {
         return this.players;
     }
 
-    public void setPlayers(int players)
-    {
+    public void setPlayers(int players) {
         this.players = players;
     }
 
-    public int getMaxPlayers()
-    {
+    public int getMaxPlayers() {
         return this.maxPlayers;
     }
 
-    public void setMaxPlayers(int maxPlayers)
-    {
+    public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
     }
 }

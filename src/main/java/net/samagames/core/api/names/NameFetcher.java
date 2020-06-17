@@ -1,8 +1,8 @@
-/**
- * Copyright © 2013 tuxed <write@imaginarycode.com>
- * This work is free. You can redistribute it and/or modify it under the
- * terms of the Do What The Fuck You Want To Public License, Version 2,
- * as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
+/*
+  Copyright © 2013 tuxed <write@imaginarycode.com>
+  This work is free. You can redistribute it and/or modify it under the
+  terms of the Do What The Fuck You Want To Public License, Version 2,
+  as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
  */
 package net.samagames.core.api.names;
 
@@ -19,15 +19,12 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class NameFetcher
-{
+public class NameFetcher {
     private static final JsonParser parser = new JsonParser();
 
-    public static List<String> nameHistoryFromUuid(UUID uuid)
-    {
+    public static List<String> nameHistoryFromUuid(UUID uuid) {
         URLConnection connection;
-        try
-        {
+        try {
             connection = new URL("https://api.mojang.com/user/profiles/"
                     + uuid.toString().replace("-", "").toLowerCase() + "/names"
             ).openConnection();
@@ -37,8 +34,7 @@ public class NameFetcher
             for (int i = 0; i < list.size(); i++)
                 names.add(((JsonObject) list.get(i)).get("name").getAsString());
             return names;
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;

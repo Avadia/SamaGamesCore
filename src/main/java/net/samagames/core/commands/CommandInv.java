@@ -23,39 +23,29 @@ import org.bukkit.inventory.Inventory;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CommandInv extends AbstractCommand
-{
-    public CommandInv(APIPlugin plugin)
-    {
+public class CommandInv extends AbstractCommand {
+    public CommandInv(APIPlugin plugin) {
         super(plugin);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, String label, String[] arguments)
-    {
+    public boolean onCommand(CommandSender sender, String label, String[] arguments) {
         if (!hasPermission(sender, "api.inventory.show"))
             return true;
 
-        if(sender instanceof Player)
-        {
-            if(arguments.length != 0)
-            {
+        if (sender instanceof Player) {
+            if (arguments.length != 0) {
                 String playerName = arguments[0];
                 Player player = Bukkit.getPlayer(playerName);
 
-                if(player != null)
-                {
+                if (player != null) {
                     Inventory inventory = player.getInventory();
                     ((Player) sender).closeInventory();
                     ((Player) sender).openInventory(inventory);
-                }
-                else
-                {
+                } else {
                     sender.sendMessage(ChatColor.RED + "Le joueur spécifié n'est pas en ligne !");
                 }
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }

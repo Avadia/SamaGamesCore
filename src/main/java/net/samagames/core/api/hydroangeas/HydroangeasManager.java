@@ -30,19 +30,17 @@ import java.util.stream.Collectors;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class HydroangeasManager
-{
+public class HydroangeasManager {
     private final ConnectionManager connectionManager;
     private final PacketReceiver packetReceiver;
 
-    private APIPlugin plugin;
-    private ApiImplementation api;
+    private final APIPlugin plugin;
+    private final ApiImplementation api;
 
-    public HydroangeasManager(APIPlugin plugin)
-    {
+    public HydroangeasManager(APIPlugin plugin) {
         this.plugin = plugin;
         this.api = plugin.getAPI();
-        this.connectionManager = new ConnectionManager(plugin, this);
+        this.connectionManager = new ConnectionManager(this);
         this.packetReceiver = new PacketReceiver(plugin);
 
         //TODO save all template data in redis
@@ -60,33 +58,28 @@ public class HydroangeasManager
 
     }
 
-    public void rejoinQueueToLeader(UUID leader, UUID player)
-    {
+    public void rejoinQueueToLeader(UUID leader, UUID player) {
         List<QPlayer> list = new ArrayList<>();
         list.add(new QPlayer(player, getPriority(player)));
 
         this.connectionManager.sendPacket(new QueueAttachPlayerPacket(new QPlayer(leader, getPriority(leader)), list));
     }
 
-    public void removePlayerFromQueues(UUID uuid)
-    {
+    public void removePlayerFromQueues(UUID uuid) {
         this.connectionManager.sendPacket(new QueueRemovePlayerPacket(new QPlayer(uuid, getPriority(uuid))));
     }
 
-    public void addPlayerToQueue(UUID player, String game, String map)
-    {
+    public void addPlayerToQueue(UUID player, String game, String map) {
         QPlayer qPlayer = new QPlayer(player, getPriority(player));
         this.connectionManager.sendPacket(new QueueAddPlayerPacket(QueuePacket.TypeQueue.NAMED, game, map, qPlayer));
     }
 
-    public void addPlayerToQueue(UUID player, String templateID)
-    {
+    public void addPlayerToQueue(UUID player, String templateID) {
         QPlayer qPlayer = new QPlayer(player, getPriority(player));
         this.connectionManager.sendPacket(new QueueAddPlayerPacket(QueuePacket.TypeQueue.NAMEDID, templateID, qPlayer));
     }
 
-    public void addPartyToQueue(UUID leader, UUID party, String game, String map)
-    {
+    public void addPartyToQueue(UUID leader, UUID party, String game, String map) {
         Party party1 = api.getPartiesManager().getParty(party);
 
         List<QPlayer> players = party1.getPlayers().stream().map(player -> new QPlayer(player, getPriority(player))).collect(Collectors.toList());
@@ -97,8 +90,7 @@ public class HydroangeasManager
         this.connectionManager.sendPacket(new QueueAttachPlayerPacket(qPlayer, players));
     }
 
-    public void addPartyToQueue(UUID leader, UUID party, String templateID)
-    {
+    public void addPartyToQueue(UUID leader, UUID party, String templateID) {
         Party party1 = api.getPartiesManager().getParty(party);
 
         List<QPlayer> players = party1.getPlayers().stream().map(player -> new QPlayer(player, getPriority(player))).collect(Collectors.toList());
@@ -109,13 +101,11 @@ public class HydroangeasManager
         this.connectionManager.sendPacket(new QueueAttachPlayerPacket(qPlayer, players));
     }
 
-    public int getPriority(UUID uuid)
-    {
+    public int getPriority(UUID uuid) {
         return plugin.getAPI().getPermissionsManager().getPlayer(uuid).getRank();
     }
 
-    public PacketReceiver getPacketReceiver()
-    {
+    public PacketReceiver getPacketReceiver() {
         return this.packetReceiver;
     }
 }

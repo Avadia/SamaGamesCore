@@ -20,24 +20,21 @@ import redis.clients.jedis.Jedis;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PubSubAPI implements IPubSubAPI
-{
+public class PubSubAPI implements IPubSubAPI {
+    private final Subscriber subscriberPattern;
+    private final Subscriber subscriberChannel;
 
-    private Subscriber subscriberPattern;
-    private Subscriber subscriberChannel;
-
-    private Sender sender;
-    private ApiImplementation api;
+    private final Sender sender;
+    private final ApiImplementation api;
 
     boolean working = true;
 
-    private Thread senderThread;
+    private final Thread senderThread;
     private Thread patternThread;
     private Thread channelThread;
 
     // Avoid to init Threads before the subclass constructor is started (Fix possible atomicity violation)
-    public PubSubAPI(ApiImplementation api)
-    {
+    public PubSubAPI(ApiImplementation api) {
         this.api = api;
         subscriberPattern = new Subscriber();
         subscriberChannel = new Subscriber();
@@ -49,19 +46,15 @@ public class PubSubAPI implements IPubSubAPI
         startThread();
     }
 
-    private void startThread()
-    {
+    private void startThread() {
         patternThread = new Thread(() -> {
-            while (working)
-            {
+            while (working) {
                 Jedis jedis = api.getBungeeResource();
-                try
-                {
+                try {
                     String[] patternsSuscribed = subscriberPattern.getPatternsSuscribed();
-                    if(patternsSuscribed.length > 0)
+                    if (patternsSuscribed.length > 0)
                         jedis.psubscribe(subscriberPattern, patternsSuscribed);
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 jedis.close();
@@ -70,16 +63,13 @@ public class PubSubAPI implements IPubSubAPI
         patternThread.start();
 
         channelThread = new Thread(() -> {
-            while (working)
-            {
+            while (working) {
                 Jedis jedis = api.getBungeeResource();
-                try
-                {
+                try {
                     String[] channelsSuscribed = subscriberChannel.getChannelsSuscribed();
                     if (channelsSuscribed.length > 0)
                         jedis.subscribe(subscriberChannel, channelsSuscribed);
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 jedis.close();
@@ -89,53 +79,45 @@ public class PubSubAPI implements IPubSubAPI
     }
 
     @Override
-    public void subscribe(String channel, IPacketsReceiver receiver)
-    {
+    public void subscribe(String channel, IPacketsReceiver receiver) {
         subscriberChannel.registerReceiver(channel, receiver);
-        if(subscriberChannel.isSubscribed())
+        if (subscriberChannel.isSubscribed())
             subscriberChannel.unsubscribe();
     }
 
     @Override
-    public void subscribe(String pattern, IPatternReceiver receiver)
-    {
+    public void subscribe(String pattern, IPatternReceiver receiver) {
         subscriberPattern.registerPattern(pattern, receiver);
-        if(subscriberPattern.isSubscribed())
+        if (subscriberPattern.isSubscribed())
             subscriberPattern.punsubscribe();
     }
 
     @Override
-    public void send(String channel, String message)
-    {
+    public void send(String channel, String message) {
         sender.publish(new PendingMessage(channel, message));
     }
 
     @Override
-    public void send(PendingMessage message)
-    {
+    public void send(PendingMessage message) {
         sender.publish(message);
     }
 
     @Override
-    public ISender getSender()
-    {
+    public ISender getSender() {
         return sender;
     }
 
-    public void disable()
-    {
+    public void disable() {
         working = false;
         subscriberChannel.unsubscribe();
         subscriberPattern.punsubscribe();
-        try
-        {
+        try {
             Thread.sleep(500);
-        } catch (Exception ignored)
-        {
+        } catch (Exception ignored) {
         }
 
-        senderThread.stop();
-        patternThread.stop();
-        channelThread.stop();
+        senderThread.interrupt();
+        patternThread.interrupt();
+        channelThread.interrupt();
     }
 }

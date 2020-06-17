@@ -7,6 +7,7 @@ import net.samagames.persistanceapi.beans.shop.TransactionBean;
 import net.samagames.tools.CallBack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,16 +29,14 @@ import java.util.stream.Collectors;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class PlayerShop implements IPlayerShop {
-
-    private ApiImplementation api;
-    private boolean[] shopToLoad;
-    private UUID uuid;
-    private List<Transaction> items;
+    private final ApiImplementation api;
+    private final boolean[] shopToLoad;
+    private final UUID uuid;
+    private final List<Transaction> items;
 
     private long lastUpdate = 0;
 
-    public PlayerShop(ApiImplementation api, boolean[] shopToLoad, UUID uuid)
-    {
+    public PlayerShop(ApiImplementation api, boolean[] shopToLoad, UUID uuid) {
         this.api = api;
         this.shopToLoad = shopToLoad;
         this.items = new ArrayList<>();
@@ -45,15 +44,12 @@ public class PlayerShop implements IPlayerShop {
     }
 
     @Override
-    public void refresh()
-    {
+    public void refresh() {
         refresh(false);
     }
 
-    public void refresh(boolean force)
-    {
-        if (force || System.currentTimeMillis() - lastUpdate > 1000*60*5)
-        {
+    public void refresh(boolean force) {
+        if (force || System.currentTimeMillis() - lastUpdate > 1000 * 60 * 5) {
             PlayerData playerData = api.getPlayerManager().getPlayerData(uuid);
            /* //TODO satch methode
             List<Transaction> items = new ArrayList<>();
@@ -84,14 +80,12 @@ public class PlayerShop implements IPlayerShop {
     }
 
     @Override
-    public void addItem(int itemID, int priceCoins, int priceStars, boolean selected)
-    {
+    public void addItem(int itemID, int priceCoins, int priceStars, boolean selected) {
         addItem(itemID, priceCoins, priceStars, selected, null);
     }
 
     @Override
-    public void addItem(int itemID, int priceCoins, int priceStars, boolean selected, CallBack<Boolean> callBack)
-    {
+    public void addItem(int itemID, int priceCoins, int priceStars, boolean selected, CallBack<Boolean> callBack) {
         PlayerData playerData = api.getPlayerManager().getPlayerData(uuid);
         Transaction transactionItem = new Transaction();
         transactionItem.setItemId(itemID);
@@ -122,8 +116,7 @@ public class PlayerShop implements IPlayerShop {
 
         //Cache
         Transaction transactionItem = getTransactionsByID(itemID);
-        if (transactionItem == null)
-        {
+        if (transactionItem == null) {
             throw new Exception("Item with id: " + itemID + " not found");
         }
         transactionItem.setSelected(selected);
@@ -142,19 +135,16 @@ public class PlayerShop implements IPlayerShop {
     public int getSelectedItemFromList(int[] itemsIDs) throws Exception {
         int selected = -1;
 
-        for (int itemID : itemsIDs)
-        {
+        for (int itemID : itemsIDs) {
             Transaction transactionsByID = this.getTransactionsByID(itemID);
-            if (transactionsByID != null && transactionsByID.isSelected())
-            {
+            if (transactionsByID != null && transactionsByID.isSelected()) {
                 selected = itemID;
                 break;
             }
         }
 
-        if (selected == -1)
-        {
-            throw new Exception("None of these items were found: " + itemsIDs);
+        if (selected == -1) {
+            throw new Exception("None of these items were found: " + Arrays.toString(itemsIDs));
         }
 
         return selected;
@@ -164,8 +154,7 @@ public class PlayerShop implements IPlayerShop {
     public boolean isSelectedItem(int itemID) throws Exception {
         //Cache
         Transaction transactionItem = getTransactionsByID(itemID);
-        if (transactionItem == null)
-        {
+        if (transactionItem == null) {
             throw new Exception("Item with id: " + itemID + " not found");
         }
         return transactionItem.isSelected();
@@ -173,14 +162,11 @@ public class PlayerShop implements IPlayerShop {
 
 
     @Override
-    public Transaction getTransactionsByID(int itemID)
-    {
+    public Transaction getTransactionsByID(int itemID) {
         //Auto refresh if more than 5min
         refresh();
-        for (Transaction item : items)
-        {
-            if (item.getItemId() == itemID)
-            {
+        for (Transaction item : items) {
+            if (item.getItemId() == itemID) {
                 return item;
             }
         }

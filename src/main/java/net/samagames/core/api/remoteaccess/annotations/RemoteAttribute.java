@@ -25,12 +25,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RemoteAttribute {
     String name();
-    String displayName();
-    String descriptorType() default "attribute";
-    String defaultValue();
-    String getMethod() default "";
-    String setMethod() default "";
-    boolean isReadable() default true;
-    boolean isWritable() default true;
 
+    String displayName();
+
+    String descriptorType() default "attribute";
+
+    String defaultValue();
+
+    String getMethod() default "";
+
+    String setMethod() default "";
+
+    boolean isReadable() default true;
+
+    boolean isWritable() default true;
 }

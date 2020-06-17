@@ -18,19 +18,17 @@ import net.samagames.core.api.hydroangeas.connection.Packet;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public abstract class PacketCallBack<PACKET extends Packet>
-{
-    private Class<? extends Packet> packet;
+public abstract class PacketCallBack<PACKET extends Packet> {
+    private final Class<? extends Packet> packet;
 
-    public PacketCallBack(Class<? extends Packet> packet)
-    {
+    public PacketCallBack(Class<? extends Packet> packet) {
         this.packet = packet;
     }
 
     public abstract void call(PACKET packet);
 
-    public Class getPacketClass()
-    {
+    @SuppressWarnings("rawtypes")
+    public Class getPacketClass() {
         return packet;
     }
 }

@@ -34,15 +34,14 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PlayerData extends AbstractPlayerData
-{
+public class PlayerData extends AbstractPlayerData {
     protected final ApiImplementation api;
     protected final PlayerDataManager manager;
 
     private PlayerBean playerBean;
 
     private long lastRefresh;
-    private UUID playerUUID;
+    private final UUID playerUUID;
 
     private GameProfile fakeProfile;
 
@@ -54,8 +53,7 @@ public class PlayerData extends AbstractPlayerData
 
     private boolean loaded = false;
 
-    protected PlayerData(UUID playerID, ApiImplementation api, PlayerDataManager manager)
-    {
+    protected PlayerData(UUID playerID, ApiImplementation api, PlayerDataManager manager) {
         this.playerUUID = playerID;
         this.api = api;
         this.manager = manager;
@@ -78,30 +76,29 @@ public class PlayerData extends AbstractPlayerData
     }
 
     //Warning load all data soi may be heavy
-    public boolean refreshData()
-    {
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean refreshData() {
         lastRefresh = System.currentTimeMillis();
         //Load from redis
 
-        try(Jedis jedis = api.getBungeeResource()){
+        try (Jedis jedis = api.getBungeeResource()) {
             //CacheLoader.load(jedis, key + playerUUID, playerBean);
             playerBean = api.getGameServiceManager().getPlayer(playerUUID, playerBean);
-            if (jedis.exists("mute:" + playerUUID))
-            {
+            if (jedis.exists("mute:" + playerUUID)) {
                 String by = jedis.hget("mute:" + playerUUID, "by");
                 String expireAt = jedis.hget("mute:" + playerUUID, "expireAt");
                 muteSanction = new SanctionBean(playerUUID,
                         SanctionBean.MUTE,
                         jedis.hget("mute:" + playerUUID, "reason"),
                         (by != null) ? UUID.fromString(by) : null,
-                        (expireAt != null)? new Timestamp(Long.valueOf(expireAt)): null,
+                        (expireAt != null) ? new Timestamp(Long.parseLong(expireAt)) : null,
                         false);
             }
-            /**
-            if (hasNickname()) {
-                this.fakeUUID = this.api.getUUIDTranslator().getUUID(playerBean.getNickName(), true);
-                this.fakeProfile = new ProfileLoader(playerUUID.toString(), playerBean.getNickName(), fakeUUID.toString()).loadProfile();
-            }**/
+            /*
+             if (hasNickname()) {
+             this.fakeUUID = this.api.getUUIDTranslator().getUUID(playerBean.getNickName(), true);
+             this.fakeProfile = new ProfileLoader(playerUUID.toString(), playerBean.getNickName(), fakeUUID.toString()).loadProfile();
+             }**/
             loaded = true;
             return true;
         } catch (Exception e) {
@@ -110,10 +107,8 @@ public class PlayerData extends AbstractPlayerData
         return false;
     }
 
-    public void updateData()
-    {
-        if(playerBean != null && loaded)
-        {
+    public void updateData() {
+        if (playerBean != null && loaded) {
             //Save in redisResource
             //Jedis jedis = api.getBungee();
             //Generated class so FUCK IT i made it static
@@ -127,50 +122,42 @@ public class PlayerData extends AbstractPlayerData
         }
     }
 
-    public SanctionBean getMuteSanction()
-    {
+    public SanctionBean getMuteSanction() {
         return muteSanction;
     }
 
     @Override
-    public void creditCoins(long amount, String reason, boolean applyMultiplier, IFinancialCallback financialCallback)
-    {
+    public void creditCoins(long amount, String reason, boolean applyMultiplier, IFinancialCallback financialCallback) {
         creditEconomy(0, amount, reason, applyMultiplier, financialCallback);
     }
 
     @Override
-    public void creditStars(long amount, String reason, boolean applyMultiplier, IFinancialCallback financialCallback)
-    {
+    public void creditStars(long amount, String reason, boolean applyMultiplier, IFinancialCallback financialCallback) {
         this.assertHub();
         creditEconomy(1, amount, reason, applyMultiplier, financialCallback);
     }
 
     @Override
-    public void creditPowders(long amount, IFinancialCallback financialCallback)
-    {
+    public void creditPowders(long amount, IFinancialCallback financialCallback) {
         this.assertHub();
         creditEconomy(2, amount, null, false, financialCallback);
     }
 
-    private void creditEconomy(int type, long amountFinal, String reason, boolean applyMultiplier, IFinancialCallback financialCallback)
-    {
+    private void creditEconomy(int type, long amountFinal, String reason, boolean applyMultiplier, IFinancialCallback financialCallback) {
         int game = 0;
         APIPlugin.getInstance().getExecutor().execute(() -> {
-            try
-            {
+            try {
                 long amount = amountFinal;
-                String message = null;
+                String message;
 
                 Multiplier multiplier = manager.getEconomyManager().getPromotionMultiplier(type, game);
-                if (applyMultiplier)
-                {
+                if (applyMultiplier) {
                     multiplier.cross(manager.getEconomyManager().getGroupMultiplier(getPlayerID()));
                 }
 
                 amount *= multiplier.getGlobalAmount();
 
-                if (reason != null)
-                {
+                if (reason != null) {
                     message = manager.getEconomyManager().getCreditMessage(amount, type, reason, multiplier);
 
                     if (Bukkit.getPlayer(getPlayerID()) != null)
@@ -183,16 +170,14 @@ public class PlayerData extends AbstractPlayerData
                 if (financialCallback != null)
                     financialCallback.done(result, amount, null);
 
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
     @Override
-    public void withdrawCoins(long amount, IFinancialCallback financialCallback)
-    {
+    public void withdrawCoins(long amount, IFinancialCallback financialCallback) {
         APIPlugin.getInstance().getExecutor().execute(() -> {
             long result = decreaseCoins(amount);
             if (financialCallback != null)
@@ -202,8 +187,7 @@ public class PlayerData extends AbstractPlayerData
     }
 
     @Override
-    public void withdrawStars(long amount, IFinancialCallback financialCallback)
-    {
+    public void withdrawStars(long amount, IFinancialCallback financialCallback) {
         this.assertHub();
 
         APIPlugin.getInstance().getExecutor().execute(() -> {
@@ -216,8 +200,7 @@ public class PlayerData extends AbstractPlayerData
     }
 
     @Override
-    public void withdrawPowders(long amount, IFinancialCallback financialCallback)
-    {
+    public void withdrawPowders(long amount, IFinancialCallback financialCallback) {
         this.assertHub();
 
         APIPlugin.getInstance().getExecutor().execute(() -> {
@@ -261,28 +244,24 @@ public class PlayerData extends AbstractPlayerData
     }
 
     @Override
-    public long decreaseCoins(long decrBy)
-    {
+    public long decreaseCoins(long decrBy) {
         return increaseCoins(-decrBy);
     }
 
     @Override
-    public long decreaseStars(long decrBy)
-    {
+    public long decreaseStars(long decrBy) {
         this.assertHub();
         return increaseStars(-decrBy);
     }
 
     @Override
-    public long decreasePowders(long decrBy)
-    {
+    public long decreasePowders(long decrBy) {
         this.assertHub();
         return increasePowders(-decrBy);
     }
 
     @Override
-    public long getCoins()
-    {
+    public long getCoins() {
         refreshIfNeeded();
         return playerBean.getCoins();
     }
@@ -300,14 +279,12 @@ public class PlayerData extends AbstractPlayerData
     }
 
     @Override
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return hasNickname() ? getCustomName() : getEffectiveName();
     }
 
     @Override
-    public String getCustomName()
-    {
+    public String getCustomName() {
         return playerBean.getNickName();
     }
 
@@ -328,23 +305,19 @@ public class PlayerData extends AbstractPlayerData
 
 
     /**
-     *  Need to be call before edit data
+     * Need to be call before edit data
      */
-    public void refreshIfNeeded()
-    {
-        if (lastRefresh + 1000 * 60 < System.currentTimeMillis())
-        {
+    public void refreshIfNeeded() {
+        if (lastRefresh + 1000 * 60 < System.currentTimeMillis()) {
             refreshData();
         }
     }
 
-    public PlayerBean getPlayerBean()
-    {
+    public PlayerBean getPlayerBean() {
         return playerBean;
     }
 
-    public boolean hasNickname()
-    {
+    public boolean hasNickname() {
         return this.getCustomName() != null && !this.getCustomName().equals("null");
     }
 
@@ -356,8 +329,7 @@ public class PlayerData extends AbstractPlayerData
         return fakeProfile;
     }
 
-    public void applyNickname(Player player)
-    {
+    public void applyNickname(Player player) {
         try {
             Object craftPlayer = Reflection.getHandle(player);
             Method getProfileMethod = craftPlayer.getClass().getMethod("getProfile");
@@ -370,22 +342,18 @@ public class PlayerData extends AbstractPlayerData
         }
     }
 
-    private void assertHub()
-    {
+    private void assertHub() {
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         boolean isHub = false;
 
-        for (StackTraceElement stackTraceElement : stackTraceElements)
-        {
-            if (stackTraceElement.getClassName().contains("hub"))
-            {
+        for (StackTraceElement stackTraceElement : stackTraceElements) {
+            if (stackTraceElement.getClassName().contains("hub")) {
                 isHub = true;
                 break;
             }
         }
 
-        if (!isHub)
-        {
+        if (!isHub) {
             throw new UnsupportedOperationException("You don't have the permission to use this method! Maybe it's now deprecated or for private use only.");
         }
     }

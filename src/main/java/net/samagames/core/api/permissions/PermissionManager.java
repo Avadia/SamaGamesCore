@@ -31,55 +31,46 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PermissionManager implements IPermissionsManager
-{
+public class PermissionManager implements IPermissionsManager {
     private final boolean isLobby;
     private final HashMap<UUID, PermissionEntity> cache = new HashMap<>();
-    private ApiImplementation api;
+    private final ApiImplementation api;
 
     private GroupsBean fakeGroupBean;
 
-    public PermissionManager(ApiImplementation api)
-    {
+    public PermissionManager(ApiImplementation api) {
         this.api = api;
         this.isLobby = SamaGamesAPI.get().getServerName().startsWith("Hub");
         Bukkit.getLogger().info("Lobby mode was set to : " + isLobby);
     }
 
-    public void loadPlayer(UUID player)
-    {
-        try{
+    public void loadPlayer(UUID player) {
+        try {
             PermissionEntity permissionEntity = new PermissionEntity(player, api.getPlugin());
             permissionEntity.refresh();
             cache.put(player, permissionEntity);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void refreshPlayer(Player p)
-    {
+    public void refreshPlayer(Player p) {
         cache.get(p.getUniqueId()).refresh();
     }
 
-    public void unloadPlayer(Player player)
-    {
-        if (!api.isKeepCache())
-        {
+    public void unloadPlayer(Player player) {
+        if (!api.isKeepCache()) {
             cache.get(player.getUniqueId()).unloadPlayer(player);
             cache.remove(player.getUniqueId());
         }
     }
 
-    public boolean isLobby()
-    {
+    public boolean isLobby() {
         return isLobby;
     }
 
     @Override
-    public PermissionEntity getPlayer(UUID player)
-    {
+    public PermissionEntity getPlayer(UUID player) {
         return cache.get(player);
     }
 
@@ -126,14 +117,12 @@ public class PermissionManager implements IPermissionsManager
     }
 
     @Override
-    public boolean hasPermission(Player player, String permission)
-    {
+    public boolean hasPermission(Player player, String permission) {
         return hasPermission(player.getUniqueId(), permission);
     }
 
     @Override
-    public boolean hasPermission(CommandSender sender, String permission)
-    {
+    public boolean hasPermission(CommandSender sender, String permission) {
         if (sender instanceof ConsoleCommandSender)
             return true;
         else if (sender instanceof Player)
@@ -141,8 +130,7 @@ public class PermissionManager implements IPermissionsManager
         return false;
     }
 
-    public GroupsBean getGroupByID(long id)
-    {
+    public GroupsBean getGroupByID(long id) {
         PlayerBean group = new PlayerBean(null, null, null, 0, 0, 0, null, null, null, null, id);
         try {
             return api.getGameServiceManager().getPlayerGroup(group);

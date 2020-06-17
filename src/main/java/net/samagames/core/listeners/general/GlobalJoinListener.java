@@ -30,19 +30,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class GlobalJoinListener implements Listener {
+    private final ApiImplementation api;
 
-    private ApiImplementation api;
-
-    public GlobalJoinListener(ApiImplementation api)
-    {
+    public GlobalJoinListener(ApiImplementation api) {
 
         this.api = api;
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event)
-    {
-        try{
+    public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
+        try {
             long startTime = System.currentTimeMillis();
             UUID player = event.getUniqueId();
 
@@ -86,13 +84,12 @@ public class GlobalJoinListener implements Listener {
                 number.incrementAndGet();
             });
 
-            while (number.get() < 7);
+            while (number.get() < 7) ;
 
             //Load in game api
             api.getJoinManager().onLogin(event);
             api.getPlugin().getLogger().info("AsyncPrelogin Time: " + (System.currentTimeMillis() - startTime));
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             event.setKickMessage("Erreur lors du chargement de votre profil.");
             event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
@@ -100,8 +97,7 @@ public class GlobalJoinListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerLogin(PlayerLoginEvent event)
-    {
+    public void onPlayerLogin(PlayerLoginEvent event) {
         long startTime = System.currentTimeMillis();
 
         //PlayerData playerData = api.getPlayerManager().getPlayerData(event.getPlayer().getUniqueId());
@@ -113,10 +109,9 @@ public class GlobalJoinListener implements Listener {
         //Permissions already loaded in async, just apply them
         PermissionManager permissionManager = api.getPermissionsManager();
         PermissionEntity permissionEntity = permissionManager.getPlayer(event.getPlayer().getUniqueId());
-        if (permissionEntity == null)
-        {
+        if (permissionEntity == null) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Erreur lors du chargement de votre profil");
-            return ;
+            return;
         }
         permissionEntity.applyPermissions(event.getPlayer());
 
@@ -127,8 +122,7 @@ public class GlobalJoinListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(PlayerJoinEvent event)
-    {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         long startTime = System.currentTimeMillis();
 
         //Remove natural join message
@@ -141,23 +135,20 @@ public class GlobalJoinListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerLeave(PlayerQuitEvent event)
-    {
+    public void onPlayerLeave(PlayerQuitEvent event) {
         // Remove quit message
         event.setQuitMessage("");
         this.onLeaveEvent(event.getPlayer());
     }
 
     @EventHandler
-    public void onPlayerKicked(PlayerKickEvent event)
-    {
+    public void onPlayerKicked(PlayerKickEvent event) {
         // Remove leave message
         event.setLeaveMessage("");
         this.onLeaveEvent(event.getPlayer());
     }
 
-    private void onLeaveEvent(Player p)
-    {
+    private void onLeaveEvent(Player p) {
         //first quit game
         api.getJoinManager().onLogout(p);
 
@@ -192,20 +183,19 @@ public class GlobalJoinListener implements Listener {
         p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
     }
 
-    public void onWillLeave(UUID player, String targetServer)
-    {
+    public void onWillLeave(UUID player, String targetServer) {
         //TODO save all data in redis
         /*try{
             api.getPlayerManager().getPlayerData(player).updateData();
         }catch (Exception ignored){
         }*/
-        try{
+        try {
             api.getSettingsManager().getSettings(player).update();
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
         }
-        try{
+        try {
             api.getStatsManager().getPlayerStats(player).updateStats();
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
         }
     }
 }

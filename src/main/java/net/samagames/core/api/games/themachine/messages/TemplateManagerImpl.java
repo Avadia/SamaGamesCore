@@ -19,35 +19,29 @@ import net.samagames.api.games.themachine.messages.templates.*;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class TemplateManagerImpl implements ITemplateManager
-{
+public class TemplateManagerImpl implements ITemplateManager {
     @Override
-    public BasicMessageTemplate getBasicMessageTemplate()
-    {
+    public BasicMessageTemplate getBasicMessageTemplate() {
         return new BasicMessageTemplate();
     }
 
     @Override
-    public WinMessageTemplate getWinMessageTemplate()
-    {
+    public WinMessageTemplate getWinMessageTemplate() {
         return new WinMessageTemplate();
     }
 
     @Override
-    public PlayerWinTemplate getPlayerWinTemplate()
-    {
+    public PlayerWinTemplate getPlayerWinTemplate() {
         return new PlayerWinTemplate();
     }
 
     @Override
-    public PlayerLeaderboardWinTemplate getPlayerLeaderboardWinTemplate()
-    {
+    public PlayerLeaderboardWinTemplate getPlayerLeaderboardWinTemplate() {
         return new PlayerLeaderboardWinTemplate();
     }
 
     @Override
-    public EarningMessageTemplate getEarningMessageTemplate()
-    {
+    public EarningMessageTemplate getEarningMessageTemplate() {
         return new EarningMessageTemplate();
     }
 }

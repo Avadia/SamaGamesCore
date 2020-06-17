@@ -32,33 +32,25 @@ import java.util.concurrent.TimeUnit;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ModerationJoinHandler implements IJoinHandler, IPacketsReceiver
-{
-
+public class ModerationJoinHandler implements IJoinHandler, IPacketsReceiver {
     private final HashMap<UUID, UUID> teleportTargets = new HashMap<>();
     private final JoinManagerImplement manager;
     private final ApiImplementation api;
 
-    public ModerationJoinHandler(ApiImplementation api)
-    {
+    public ModerationJoinHandler(ApiImplementation api) {
         this.api = api;
         manager = api.getJoinManager();
     }
 
     @Override
-    public void onModerationJoin(Player player)
-    {
+    public void onModerationJoin(Player player) {
         player.sendMessage(ChatColor.GOLD + "Vous avez rejoint cette arène en mode modération.");
         player.setGameMode(GameMode.SPECTATOR);
 
-        List<Player> players = new ArrayList<>();
-        players.addAll(Bukkit.getOnlinePlayers());
-        players.stream().filter(gamePlayer -> !gamePlayer.getName().equals(player.getName())).forEach(gamePlayer -> {
-            gamePlayer.hidePlayer(player);
-        });
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        players.stream().filter(gamePlayer -> !gamePlayer.getName().equals(player.getName())).forEach(gamePlayer -> gamePlayer.hidePlayer(api.getPlugin(), player));
 
-        if (teleportTargets.containsKey(player.getUniqueId()))
-        {
+        if (teleportTargets.containsKey(player.getUniqueId())) {
             UUID target = teleportTargets.get(player.getUniqueId());
             Player tar = Bukkit.getPlayer(target);
             if (tar != null)
@@ -68,29 +60,24 @@ public class ModerationJoinHandler implements IJoinHandler, IPacketsReceiver
     }
 
     @Override
-    public void receive(String channel, String packet)
-    {
-        if(packet.startsWith("moderator"))
-        {
+    public void receive(String channel, String packet) {
+        if (packet.startsWith("moderator")) {
             String[] args = StringUtils.split(packet, " ");
             String id = args[1];
             UUID uuid = UUID.fromString(id);
             manager.addModerator(uuid);
         }
 
-        if (packet.startsWith("teleport"))
-        {
+        if (packet.startsWith("teleport")) {
             String[] args = StringUtils.split(packet, " ");
             String id = args[1];
             UUID uuid = UUID.fromString(id);
 
-            try
-            {
+            try {
                 UUID target = UUID.fromString(args[2]);
                 teleportTargets.put(uuid, target);
 
-            } catch (Exception ignored)
-            {
+            } catch (Exception ignored) {
             }
 
             //On attend un peu avant de tp

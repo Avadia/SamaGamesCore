@@ -26,56 +26,50 @@ import java.util.UUID;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PluginMessageListener implements org.bukkit.plugin.messaging.PluginMessageListener
-{
-    private ApiImplementation api;
+public class PluginMessageListener implements org.bukkit.plugin.messaging.PluginMessageListener {
+    private final ApiImplementation api;
 
-    public PluginMessageListener(ApiImplementation api)
-    {
+    public PluginMessageListener(ApiImplementation api) {
         this.api = api;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
-    public void onPluginMessageReceived(String channel, Player player, byte[] message)
-    {
-        if (channel.equals("Network"))
-        {
+    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+        if (channel.equals("Network")) {
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
             String subChannel = in.readUTF();
 
-            if (subChannel.equals("addFriend"))
-            {
-                UUID receiver = UUID.fromString(in.readUTF());
-                UUID toAdd = UUID.fromString(in.readUTF());
+            switch (subChannel) {
+                case "addFriend": {
+                    UUID receiver = UUID.fromString(in.readUTF());
+                    UUID toAdd = UUID.fromString(in.readUTF());
 
-                api.getFriendsManager().getFriendPlayer(receiver).addFriend(toAdd);
-            }
-            else if(subChannel.equals("removeFriend"))
-            {
-                UUID receiver = UUID.fromString(in.readUTF());
-                UUID toRemove = UUID.fromString(in.readUTF());
-
-                //Not safe but don't care
-                try
-                {
-                    api.getFriendsManager().getFriendPlayer(receiver).getFriends().remove(toRemove);
+                    api.getFriendsManager().getFriendPlayer(receiver).addFriend(toAdd);
+                    break;
                 }
-                catch (Exception ignored) {}
+                case "removeFriend": {
+                    UUID receiver = UUID.fromString(in.readUTF());
+                    UUID toRemove = UUID.fromString(in.readUTF());
 
-                try
-                {
-                    api.getFriendsManager().getFriendPlayer(toRemove).getFriends().remove(receiver);
+                    //Not safe but don't care
+                    try {
+                        api.getFriendsManager().getFriendPlayer(receiver).getFriends().remove(toRemove);
+                    } catch (Exception ignored) {
+                    }
+
+                    try {
+                        api.getFriendsManager().getFriendPlayer(toRemove).getFriends().remove(receiver);
+                    } catch (Exception ignored) {
+                    }
+                    break;
                 }
-                catch (Exception ignored) {}
+                case "updateParty":
+                    UUID party = UUID.fromString(in.readUTF());
+                    api.getPartiesManager().loadParty(party);
+                    break;
             }
-            else if(subChannel.equals("updateParty"))
-            {
-                UUID party = UUID.fromString(in.readUTF());
-                api.getPartiesManager().loadParty(party);
-            }
-        }
-        else if (channel.equals("Achievement"))
-        {
+        } else if (channel.equals("Achievement")) {
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
 
             UUID playerForUnlock = UUID.fromString(in.readUTF());
@@ -87,8 +81,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
             {
                 Achievement achievement = this.api.getAchievementManager().getAchievementByID(achievementId);
 
-                if (forTheOthers)
-                {
+                if (forTheOthers) {
                     Bukkit.getOnlinePlayers().stream().filter(p -> p.getUniqueId() != playerForUnlock).forEach(p ->
                     {
                         if (isIncrementType)
@@ -96,9 +89,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                         else
                             achievement.unlock(p.getUniqueId());
                     });
-                }
-                else
-                {
+                } else {
                     if (isIncrementType)
                         ((IncrementationAchievement) achievement).increment(playerForUnlock, in.readInt());
                     else

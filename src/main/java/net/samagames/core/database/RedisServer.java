@@ -16,31 +16,26 @@ package net.samagames.core.database;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class RedisServer
-{
+public class RedisServer {
     private final String ip;
     private final int port;
     private final String password;
 
-    public RedisServer(String ip, int port, String password)
-    {
+    public RedisServer(String ip, int port, String password) {
         this.ip = ip;
         this.port = port;
         this.password = password;
     }
 
-    public String getIp()
-    {
+    public String getIp() {
         return this.ip;
     }
 
-    public int getPort()
-    {
+    public int getPort() {
         return this.port;
     }
 
-    public String getPassword()
-    {
+    public String getPassword() {
         return this.password;
     }
 }

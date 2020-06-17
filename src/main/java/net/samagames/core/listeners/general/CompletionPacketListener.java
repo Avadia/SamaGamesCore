@@ -26,8 +26,7 @@ import java.lang.reflect.Method;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CompletionPacketListener extends TinyProtocol
-{
+public class CompletionPacketListener extends TinyProtocol {
     /**
      * Construct a new instance of TinyProtocol, and start intercepting packets for all connected clients and future clients.
      * <p>
@@ -35,32 +34,25 @@ public class CompletionPacketListener extends TinyProtocol
      *
      * @param plugin - the plugin.
      */
-    public CompletionPacketListener(APIPlugin plugin)
-    {
+    public CompletionPacketListener(APIPlugin plugin) {
         super(plugin);
     }
 
     @Override
-    public Object onPacketInAsync(Player receiver, Channel channel, Object packet)
-    {
-        if (PacketPlayInTabComplete.class.isAssignableFrom(packet.getClass()))
-        {
+    public Object onPacketInAsync(Player receiver, Channel channel, Object packet) {
+        if (PacketPlayInTabComplete.class.isAssignableFrom(packet.getClass())) {
             if (SamaGamesAPI.get().getPermissionsManager().hasPermission(receiver, "network.staff"))
                 return super.onPacketInAsync(receiver, channel, packet);
 
-            try
-            {
+            try {
                 Method getCommandMethod = packet.getClass().getMethod("a");
                 String command = (String) getCommandMethod.invoke(packet);
 
-                if (command.startsWith("/") && command.split(" ").length == 1)
-                {
+                if (command.startsWith("/") && command.split(" ").length == 1) {
                     this.sendPacket(receiver, new PacketPlayInTabComplete());
                     return null;
                 }
-            }
-            catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
-            {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }

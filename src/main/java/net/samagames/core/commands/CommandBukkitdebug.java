@@ -21,19 +21,18 @@ import org.bukkit.command.CommandSender;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class CommandBukkitdebug extends AbstractCommand {
+    public CommandBukkitdebug(APIPlugin plugin) {
+        super(plugin);
+    }
 
-	public CommandBukkitdebug(APIPlugin plugin) {
-		super(plugin);
-	}
+    @Override
+    public boolean onCommand(CommandSender sender, String label, String[] arguments) {
+        if (!hasPermission(sender, "api.servers.debug"))
+            return true;
 
-	@Override
-	public boolean onCommand(CommandSender sender, String label, String[] arguments) {
-		if (!hasPermission(sender, "api.servers.debug"))
-			return true;
+        plugin.getDebugListener().toggle(sender);
+        sender.sendMessage(ChatColor.GOLD + "Bukkit Debug toggled.");
 
-		plugin.getDebugListener().toggle(sender);
-		sender.sendMessage(ChatColor.GOLD + "Bukkit Debug toggled.");
-
-		return true;
-	}
+        return true;
+    }
 }

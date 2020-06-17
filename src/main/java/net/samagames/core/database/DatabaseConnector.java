@@ -25,50 +25,41 @@ import java.util.logging.Level;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class DatabaseConnector
-{
-
+public class DatabaseConnector {
     private final APIPlugin plugin;
     private JedisPool cachePool;
     private RedisServer bungee;
     private WhiteListRefreshTask keeper;
 
-    public DatabaseConnector(APIPlugin plugin)
-    {
+    public DatabaseConnector(APIPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public DatabaseConnector(APIPlugin plugin, RedisServer bungee)
-    {
+    public DatabaseConnector(APIPlugin plugin, RedisServer bungee) {
         this.plugin = plugin;
         this.bungee = bungee;
 
         initiateConnection();
     }
 
-    public Jedis getBungeeResource()
-    {
+    public Jedis getBungeeResource() {
         return cachePool.getResource();
     }
 
-    public void killConnection()
-    {
+    public void killConnection() {
         cachePool.close();
         cachePool.destroy();
     }
 
-    private void initiateConnection()
-    {
+    private void initiateConnection() {
         // Préparation de la connexion
         connect();
 
         this.plugin.getExecutor().scheduleAtFixedRate(() ->
         {
-            try
-            {
+            try {
                 cachePool.getResource().close();
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
                 plugin.getLogger().log(Level.SEVERE, "Error redis connection, Try to reconnect!", e);
                 connect();
@@ -76,28 +67,23 @@ public class DatabaseConnector
         }, 0, 10, TimeUnit.SECONDS);
         // Init du thread
 
-        if (keeper == null)
-        {
+        if (keeper == null) {
             keeper = new WhiteListRefreshTask(plugin, this);
             Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, keeper, 0, 30 * 20);
         }
     }
 
-    private void connect()
-    {
+    private void connect() {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(-1);
         config.setJmxEnabled(false);
 
-        try
-        {
+        try {
             this.cachePool = new JedisPool(config, this.bungee.getIp(), this.bungee.getPort(), 0, this.bungee.getPassword());
             this.cachePool.getResource().close();
 
-            this.plugin.log(Level.INFO, "Connected to database.");
-        }
-        catch (Exception e)
-        {
+            APIPlugin.log(Level.INFO, "Connected to database.");
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Can't connect to the database!", e);
             Bukkit.shutdown();
         }

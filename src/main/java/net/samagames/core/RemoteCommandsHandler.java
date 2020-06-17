@@ -19,18 +19,15 @@ import org.bukkit.Bukkit;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-class RemoteCommandsHandler implements IPacketsReceiver
-{
-    private APIPlugin plugin;
+class RemoteCommandsHandler implements IPacketsReceiver {
+    private final APIPlugin plugin;
 
-    public RemoteCommandsHandler(APIPlugin plugin)
-    {
+    public RemoteCommandsHandler(APIPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public void receive(String channel, String command)
-    {
+    public void receive(String channel, String command) {
         Bukkit.getLogger().info("Executing command remotely : " + command);
         Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
     }

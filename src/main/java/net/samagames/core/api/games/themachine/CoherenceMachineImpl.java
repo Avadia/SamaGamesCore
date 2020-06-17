@@ -28,8 +28,8 @@ import org.bukkit.inventory.meta.ItemMeta;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CoherenceMachineImpl implements ICoherenceMachine
-{
+public class CoherenceMachineImpl implements ICoherenceMachine {
+    @SuppressWarnings("rawtypes")
     private final Game game;
     private final IGameProperties gameProperties;
     private final IMessageManager messageManager;
@@ -37,8 +37,8 @@ public class CoherenceMachineImpl implements ICoherenceMachine
     private String startCountdownCatchPhrase;
     private String nameShortcut;
 
-    public CoherenceMachineImpl(Game game, IGameProperties gameProperties)
-    {
+    @SuppressWarnings("rawtypes")
+    public CoherenceMachineImpl(Game game, IGameProperties gameProperties) {
         this.game = game;
         this.gameProperties = gameProperties;
 
@@ -50,50 +50,33 @@ public class CoherenceMachineImpl implements ICoherenceMachine
     }
 
     @Override
-    public void setStartCountdownCatchPhrase(String phrase)
-    {
-        this.startCountdownCatchPhrase = phrase;
-    }
-
-    @Override
-    public void setNameShortcut(String shortcut)
-    {
-        this.nameShortcut = shortcut;
-    }
-
-    @Override
-    public String getGameTag()
-    {
+    public String getGameTag() {
         return ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + (this.nameShortcut != null ? this.nameShortcut : this.game.getGameName()) + ChatColor.DARK_AQUA + "]" + ChatColor.RESET;
     }
 
     @Override
-    public IMessageManager getMessageManager()
-    {
+    public IMessageManager getMessageManager() {
         return this.messageManager;
     }
 
     @Override
-    public ITemplateManager getTemplateManager()
-    {
+    public ITemplateManager getTemplateManager() {
         return this.templateManager;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
-    public Game getGame()
-    {
+    public Game getGame() {
         return this.game;
     }
 
     @Override
-    public IGameProperties getGameProperties()
-    {
+    public IGameProperties getGameProperties() {
         return this.gameProperties;
     }
 
     @Override
-    public ItemStack getLeaveItem()
-    {
+    public ItemStack getLeaveItem() {
         ItemStack door = new ItemStack(Material.WOOD_DOOR, 1);
         ItemMeta meta = door.getItemMeta();
         meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Quitter le jeu");
@@ -103,14 +86,22 @@ public class CoherenceMachineImpl implements ICoherenceMachine
     }
 
     @Override
-    public String getStartCountdownCatchPhrase()
-    {
+    public String getStartCountdownCatchPhrase() {
         return this.startCountdownCatchPhrase;
     }
 
     @Override
-    public String getNameShortcut()
-    {
+    public void setStartCountdownCatchPhrase(String phrase) {
+        this.startCountdownCatchPhrase = phrase;
+    }
+
+    @Override
+    public String getNameShortcut() {
         return this.nameShortcut;
+    }
+
+    @Override
+    public void setNameShortcut(String shortcut) {
+        this.nameShortcut = shortcut;
     }
 }

@@ -21,22 +21,19 @@ import org.bukkit.entity.Player;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class CommandRejoinTemplate extends AbstractCommand {
-
     public CommandRejoinTemplate(APIPlugin plugin) {
         super(plugin);
     }
 
     @Override
-    protected boolean onCommand(CommandSender sender, String label, String[] arguments)
-    {
+    protected boolean onCommand(CommandSender sender, String label, String[] arguments) {
         if (arguments == null || arguments.length < 2)
             return true;
 
-        try
-        {
+        try {
             plugin.getAPI().getGameManager().rejoinTemplateQueue((Player) sender);
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
 
         return true;
     }

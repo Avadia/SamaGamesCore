@@ -30,14 +30,12 @@ import org.bukkit.inventory.ItemStack;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CooldownModule implements Listener
-{
-    private ApiImplementation api;
+public class CooldownModule implements Listener {
+    private final ApiImplementation api;
 
-    private int[] data = new int[Material.values().length];
+    private final int[] data = new int[Material.values().length];
 
-    public CooldownModule(ApiImplementation api)
-    {
+    public CooldownModule(ApiImplementation api) {
         this.api = api;
 
         data[Material.WOOD_AXE.ordinal()] = 1;
@@ -53,12 +51,10 @@ public class CooldownModule implements Listener
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerJoin(PlayerJoinEvent event)
-    {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        if (api.getGameManager().isLegacyPvP())
-        {
+        if (api.getGameManager().isLegacyPvP()) {
             AttributeInstance genericAttackSpeedAttribute = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
 
             if (genericAttackSpeedAttribute != null)
@@ -66,9 +62,9 @@ public class CooldownModule implements Listener
         }
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
-    {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (api.getGameManager().isLegacyPvP()) {
             Entity attacker = event.getDamager();
             if (attacker instanceof Player) {
@@ -88,7 +84,7 @@ public class CooldownModule implements Listener
     }
 
     private double getLegacyDamage(Material type) {
-        switch(data[type.ordinal()]) {
+        switch (data[type.ordinal()]) {
             case 1:
             case 2:
                 return 4.0D;
@@ -110,7 +106,7 @@ public class CooldownModule implements Listener
     }
 
     private double getCurrentDamage(Material type) {
-        switch(data[type.ordinal()]) {
+        switch (data[type.ordinal()]) {
             case 1:
             case 2:
             case 10:

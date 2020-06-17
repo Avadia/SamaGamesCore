@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /*
@@ -36,15 +37,13 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class Generator {
+    private static final List<JavaFile> toBuild = new ArrayList<>();
 
-    private static List<JavaFile> toBuild = new ArrayList<>();
+    private static final ClassName apimpl = ClassName.get("net.samagames.core", "ApiImplementation");
+    private static final ClassName jedis = ClassName.get("redis.clients.jedis", "Jedis");
+    private static final ClassName converter = ClassName.get("net.samagames.tools", "TypeConverter");
 
-    private static ClassName apimpl = ClassName.get("net.samagames.core", "ApiImplementation");
-    private static ClassName jedis = ClassName.get("redis.clients.jedis", "Jedis");
-    private static ClassName converter = ClassName.get("net.samagames.tools", "TypeConverter");
-
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         createPlayerStat();
 
         createCacheLoader();
@@ -52,8 +51,7 @@ public class Generator {
         build();
     }
 
-    public static void createPlayerStat()
-    {
+    public static void createPlayerStat() {
         List<JavaFile> typeStats = loadGameStats();
 
         TypeSpec.Builder playerStatsBuilder = TypeSpec.classBuilder("PlayerStats")
@@ -64,8 +62,7 @@ public class Generator {
         playerStatsBuilder.addField(apimpl, "api", Modifier.PRIVATE);
         playerStatsBuilder.addField(boolean[].class, "statsToLoad", Modifier.PRIVATE);
 
-        for (JavaFile javaFile : typeStats)
-        {
+        for (JavaFile javaFile : typeStats) {
             playerStatsBuilder.addField(ClassName.get(javaFile.packageName, javaFile.typeSpec.name),
                     javaFile.typeSpec.name.toLowerCase(), Modifier.PRIVATE);
         }
@@ -82,23 +79,20 @@ public class Generator {
 
         //Logger.getGlobal().info("GamesNames: " + Arrays.toString(GamesNames.values()));
 
-        for (JavaFile javaFile : typeStats)
-        {
+        for (JavaFile javaFile : typeStats) {
             double value = 0;
             GamesNames stat = null;
-            for (GamesNames names : GamesNames.values())
-            {
+            for (GamesNames names : GamesNames.values()) {
                 double sim = similarity(names.name().toLowerCase(), javaFile.typeSpec.name.toLowerCase());
-                if ( sim > value )
-                {
+                if (sim > value) {
                     value = sim;
                     stat = names;
                 }
                 //Logger.getGlobal().info("value : " + sim + " for: " + names.name() + " lel " + javaFile.typeSpec.name.toLowerCase());
             }
 
-            constructor.addStatement("if (global || statsToLoad[" + stat.intValue() + "]) \n"
-                                + "this." + javaFile.typeSpec.name.toLowerCase() + " = new " + javaFile.typeSpec.name + "(player)");
+            constructor.addStatement("if (global || statsToLoad[" + Objects.requireNonNull(stat).intValue() + "]) \n"
+                    + "this." + javaFile.typeSpec.name.toLowerCase() + " = new " + javaFile.typeSpec.name + "(player)");
         }
         playerStatsBuilder.addMethod(constructor.build());
 
@@ -120,8 +114,7 @@ public class Generator {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .returns(void.class);
-        for (JavaFile javaFile : typeStats)
-        {
+        for (JavaFile javaFile : typeStats) {
             String variable = javaFile.typeSpec.name.toLowerCase();
             String code = "if (" + variable + " != null)\n" +
                     "   " + variable + ".update()";
@@ -136,8 +129,7 @@ public class Generator {
                 .addAnnotation(Override.class)
                 .returns(boolean.class);
 
-        for (JavaFile javaFile : typeStats)
-        {
+        for (JavaFile javaFile : typeStats) {
             String variable = javaFile.typeSpec.name.toLowerCase();
             String code = "if (" + variable + " != null)\n" +
                     "   " + variable + ".refresh()";
@@ -147,8 +139,7 @@ public class Generator {
         refreshStat.addStatement("return true");
         playerStatsBuilder.addMethod(refreshStat.build());
 
-        for (JavaFile javaFile : typeStats)
-        {
+        for (JavaFile javaFile : typeStats) {
             ClassName className = ClassName.get(javaFile.packageName, javaFile.typeSpec.name);
             String variable = javaFile.typeSpec.name.toLowerCase();
             MethodSpec.Builder getter = MethodSpec.methodBuilder("get" + javaFile.typeSpec.name)
@@ -174,56 +165,54 @@ public class Generator {
         String settingPackage = "net.samagames.core.api.settings";
         String settingPackageI = "net.samagames.api.settings";
         TypeSpec implClass = createImplementationClass(settingPackageI, PlayerSettingsBean.class, "settings:", false);
-        toBuild.add(JavaFile.builder(settingPackage, implClass).build());
+        toBuild.add(JavaFile.builder(settingPackage, Objects.requireNonNull(implClass)).build());
         //END SETTINGS
 
         TypeSpec shop = createSImplementationClass("net.samagames.api.shops", ItemDescriptionBean.class);
-        toBuild.add(JavaFile.builder("net.samagames.core.api.shops", shop).build());
+        toBuild.add(JavaFile.builder("net.samagames.core.api.shops", Objects.requireNonNull(shop)).build());
 
         TypeSpec transaction = createSImplementationClass("net.samagames.api.shops", TransactionBean.class);
-        toBuild.add(JavaFile.builder("net.samagames.core.api.shops", transaction).build());
+        toBuild.add(JavaFile.builder("net.samagames.core.api.shops", Objects.requireNonNull(transaction)).build());
 
     }
 
-    public static List<JavaFile> loadGameStats()
-    {
+    public static List<JavaFile> loadGameStats() {
         List<JavaFile> stats = new ArrayList<>();
         String package_ = "net.samagames.core.api.stats.games";
         String packageI_ = "net.samagames.api.stats.games";
         Field[] playerStatisticFields = PlayerStatisticsBean.class.getDeclaredFields();
-        for (Field field : playerStatisticFields)
-        {
+        for (Field field : playerStatisticFields) {
             field.setAccessible(true);
             TypeSpec implClass = createImplementationClass(packageI_, field.getType(), "statistic:", true);
 
-            JavaFile file = JavaFile.builder(package_, implClass).build();
+            JavaFile file = JavaFile.builder(package_, Objects.requireNonNull(implClass)).build();
             stats.add(file);
             toBuild.add(file);
         }
         return stats;
     }
 
-    public static TypeSpec createImplementationClass(String package_, Class type, String serializeKey)
-    {
+    @SuppressWarnings("rawtypes")
+    public static TypeSpec createImplementationClass(String package_, Class type, String serializeKey) {
         return createImplementationClass(package_, type, serializeKey, false);
     }
 
-    public static TypeSpec createImplementationClass(String package_, Class type, String serializeKey, boolean isUpdatable)
-    {
+    @SuppressWarnings({"rawtypes", "MismatchedQueryAndUpdateOfCollection"})
+    public static TypeSpec createImplementationClass(String package_, Class type, String serializeKey, boolean isUpdatable) {
         String name = type.getSimpleName().replaceAll("Bean", "");
         Method[] subDeclaredMethods = type.getDeclaredMethods();
 
         TypeSpec.Builder object = TypeSpec.classBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
-                .addSuperinterface(ClassName.get(package_, "I"+name))
+                .addSuperinterface(ClassName.get(package_, "I" + name))
                 .superclass(type);
-        ClassName pdata = ClassName.get("net.samagames.core.api.player","PlayerData");
+        ClassName pdata = ClassName.get("net.samagames.core.api.player", "PlayerData");
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(pdata, "playerData")
                 .addParameter(type, "bean");
 
-        String sup = "super(playerData.getPlayerID()\n";
+        StringBuilder sup = new StringBuilder("super(playerData.getPlayerID()\n");
 
         //CONSTRUCTOR START
         Constructor constructor1 = type.getConstructors()[0];
@@ -233,34 +222,29 @@ public class Generator {
 
         //Not efficiency but do the job and don't care for compilation
         int i = 0;
-        for (String parameterName : annotation.value())
-        {
+        for (String parameterName : annotation.value()) {
             //Don't do the first iteration
-            if (i == 0)
-            {
+            if (i == 0) {
                 i++;
                 continue;
             }
             double similitudeMax = 0.0;
             String methodName = "";
-            for (Method method : subDeclaredMethods)
-            {
+            for (Method method : subDeclaredMethods) {
                 if (method.getName().startsWith("get")
-                        || method.getName().startsWith("is"))
-                {
+                        || method.getName().startsWith("is")) {
                     double similitude = similarity(parameterName.toLowerCase(), method.getName().toLowerCase());
-                    if (similitude > similitudeMax)
-                    {
+                    if (similitude > similitudeMax) {
                         similitudeMax = similitude;
                         methodName = method.getName();
                     }
                 }
             }
-            sup += ",bean." + methodName + "()\n";
+            sup.append(",bean.").append(methodName).append("()\n");
         }
-        sup += ")";
+        sup.append(")");
 
-        constructor.addStatement(sup);
+        constructor.addStatement(sup.toString());
         constructor.addStatement("this.api = ($T) $T.get()", apimpl, apimpl);
         constructor.addStatement("this.$N = $N", "playerData", "playerData");
 
@@ -272,37 +256,30 @@ public class Generator {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(pdata, "playerData");
 
-        String instruction = "super(playerData.getPlayerID()\n";
+        StringBuilder instruction = new StringBuilder("super(playerData.getPlayerID()\n");
 
         boolean lol = true;
-        for (Parameter parameter : type.getConstructors()[0].getParameters())
-        {
-            if (lol)
-            {
+        for (Parameter parameter : type.getConstructors()[0].getParameters()) {
+            if (lol) {
                 lol = false;
                 continue;
             }
 
-            if (parameter.getType().equals(int.class))
-            {
-                instruction += ",0\n";
-            }else if (parameter.getType().equals(long.class))
-            {
-                instruction += ",0\n";
-            }else if (parameter.getType().equals(double.class))
-            {
-                instruction += ",0.0\n";
-            }else if (parameter.getType().equals(boolean.class))
-            {
-                instruction += ",false\n";
-            }else
-            {
-                instruction += ", null\n";
+            if (parameter.getType().equals(int.class)) {
+                instruction.append(",0\n");
+            } else if (parameter.getType().equals(long.class)) {
+                instruction.append(",0\n");
+            } else if (parameter.getType().equals(double.class)) {
+                instruction.append(",0.0\n");
+            } else if (parameter.getType().equals(boolean.class)) {
+                instruction.append(",false\n");
+            } else {
+                instruction.append(", null\n");
             }
         }
-        instruction += ")";
+        instruction.append(")");
 
-        constructor2.addStatement(instruction);
+        constructor2.addStatement(instruction.toString());
         constructor2.addStatement("this.api = ($T) $T.get()", apimpl, apimpl);
         constructor2.addStatement("this.$N = $N", "playerData", "playerData");
 
@@ -314,11 +291,9 @@ public class Generator {
 
         List<String> createdFields = new ArrayList<>();
 
-        for (Method method : subDeclaredMethods)
-        {
+        for (Method method : subDeclaredMethods) {
             String methodName = method.getName();
-            if (method.getParameters().length > 0)
-            {
+            if (method.getParameters().length > 0) {
                 boolean isIncrementable = false;
                 Class<?> type1 = method.getParameters()[0].getType();
                 if (type1.equals(int.class)
@@ -327,8 +302,7 @@ public class Generator {
                         || type1.equals(float.class))
                     isIncrementable = true;
 
-                if (methodName.startsWith("set") && isIncrementable)
-                {
+                if (methodName.startsWith("set") && isIncrementable) {
                     methodName = "incrBy" + methodName.substring(3);
                     String fieldName = method.getName().substring(3) + "Vector";
                     createdFields.add(fieldName);
@@ -337,10 +311,8 @@ public class Generator {
                     object.addField(vector);*/
 
                     MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName);
-                    if (method.getParameterCount() > 0)
-                    {
-                        for (Parameter parameter : method.getParameters())
-                        {
+                    if (method.getParameterCount() > 0) {
+                        for (Parameter parameter : method.getParameters()) {
                             builder.addParameter(parameter.getType(), parameter.getName());
                         }
                     }
@@ -358,8 +330,7 @@ public class Generator {
                 .returns(void.class)
                 .addAnnotation(Override.class);
 
-        if (isUpdatable)
-        {
+        if (isUpdatable) {
             update.addStatement("    try {\n" +
                     "  this.api.getGameServiceManager().update" + type.getSimpleName().replace("StatisticsBean", "") + "Statistics(playerData.getPlayerBean(), this);\n" +
                     "} catch (Exception e) {\n" +
@@ -408,8 +379,7 @@ public class Generator {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class)
                 .addAnnotation(Override.class);
-        if (isUpdatable)
-        {
+        if (isUpdatable) {
             refresh.addStatement("    try {\n" +
                     "  copy(this.api.getGameServiceManager().get" + type.getSimpleName().replace("StatisticsBean", "") + "Statistics(playerData.getPlayerBean()));\n" +
                     "} catch (Exception e) {\n" +
@@ -439,11 +409,9 @@ public class Generator {
                 .returns(void.class)
                 .addParameter(type, "data");
 
-        for (Method setters : type.getDeclaredMethods())
-        {
-            if (setters.getName().startsWith("set"))
-            {
-                copy.addStatement(setters.getName() + "(data." + (setters.getParameters()[0].getType().equals(boolean.class)?"is":"get") + setters.getName().substring(3) + "())");
+        for (Method setters : type.getDeclaredMethods()) {
+            if (setters.getName().startsWith("set")) {
+                copy.addStatement(setters.getName() + "(data." + (setters.getParameters()[0].getType().equals(boolean.class) ? "is" : "get") + setters.getName().substring(3) + "())");
             }
         }
         object.addMethod(copy.build());
@@ -451,20 +419,20 @@ public class Generator {
         return object.build();
     }
 
-    public static TypeSpec createSImplementationClass(String package_, Class type)
-    {
+    @SuppressWarnings("rawtypes")
+    public static TypeSpec createSImplementationClass(String package_, Class type) {
         String name = type.getSimpleName().replaceAll("Bean", "");
         Method[] subDeclaredMethods = type.getDeclaredMethods();
 
         TypeSpec.Builder object = TypeSpec.classBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
-                .addSuperinterface(ClassName.get(package_, "I"+name))
+                .addSuperinterface(ClassName.get(package_, "I" + name))
                 .superclass(type);
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(type, "bean");
 
-        String sup = "super(\n";
+        StringBuilder sup = new StringBuilder("super(\n");
 
         //CONSTRUCTOR START
         Constructor constructor1 = type.getConstructors()[0];
@@ -473,29 +441,25 @@ public class Generator {
         ConstructorProperties annotation = (ConstructorProperties) constructor1.getAnnotation(ConstructorProperties.class);
 
         //Not efficiency but do the job and don't care for compilation
-        for (String parameterName : annotation.value())
-        {
+        for (String parameterName : annotation.value()) {
             double similitudeMax = 0.0;
             String methodName = "";
-            for (Method method : subDeclaredMethods)
-            {
+            for (Method method : subDeclaredMethods) {
                 if (method.getName().startsWith("get")
-                        || method.getName().startsWith("is"))
-                {
+                        || method.getName().startsWith("is")) {
                     double similitude = similarity(parameterName.toLowerCase(), method.getName().toLowerCase());
-                    if (similitude > similitudeMax)
-                    {
+                    if (similitude > similitudeMax) {
                         similitudeMax = similitude;
                         methodName = method.getName();
                     }
                 }
             }
-            sup += "bean." + methodName + "()\n,";
+            sup.append("bean.").append(methodName).append("()\n,");
         }
-        sup = sup.substring(0, sup.length()-1);
-        sup += ")";
+        sup = new StringBuilder(sup.substring(0, sup.length() - 1));
+        sup.append(")");
 
-        constructor.addStatement(sup);
+        constructor.addStatement(sup.toString());
         object.addMethod(constructor.build());
         //CONSTRUCTOR END
 
@@ -503,32 +467,26 @@ public class Generator {
         MethodSpec.Builder constructor2 = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC);
 
-        String instruction = "super(\n";
+        StringBuilder instruction = new StringBuilder("super(\n");
 
-        for (Parameter parameter : type.getConstructors()[0].getParameters())
-        {
+        for (Parameter parameter : type.getConstructors()[0].getParameters()) {
 
-            if (parameter.getType().equals(int.class))
-            {
-                instruction += "0\n,";
-            }else if (parameter.getType().equals(long.class))
-            {
-                instruction += "0\n,";
-            }else if (parameter.getType().equals(double.class))
-            {
-                instruction += "0.0\n,";
-            }else if (parameter.getType().equals(boolean.class))
-            {
-                instruction += "false\n,";
-            }else
-            {
-                instruction += "null\n,";
+            if (parameter.getType().equals(int.class)) {
+                instruction.append("0\n,");
+            } else if (parameter.getType().equals(long.class)) {
+                instruction.append("0\n,");
+            } else if (parameter.getType().equals(double.class)) {
+                instruction.append("0.0\n,");
+            } else if (parameter.getType().equals(boolean.class)) {
+                instruction.append("false\n,");
+            } else {
+                instruction.append("null\n,");
             }
         }
-        instruction = instruction.substring(0, instruction.length()-1);
-        instruction += ")";
+        instruction = new StringBuilder(instruction.substring(0, instruction.length() - 1));
+        instruction.append(")");
 
-        constructor2.addStatement(instruction);
+        constructor2.addStatement(instruction.toString());
         object.addMethod(constructor2.build());
         //CONSTRUCTOR 2 END
 
@@ -536,8 +494,8 @@ public class Generator {
         return object.build();
     }
 
-    public static void createCacheLoader()
-    {
+    @SuppressWarnings("rawtypes")
+    public static void createCacheLoader() {
         List<Class> toCreate = new ArrayList<>();
         toCreate.add(GroupsBean.class);
         toCreate.add(PlayerBean.class);
@@ -551,8 +509,7 @@ public class Generator {
                 .addModifiers(Modifier.PUBLIC);
 
         //Loaders
-        for (Class classe : toCreate)
-        {
+        for (Class classe : toCreate) {
             MethodSpec.Builder getter = MethodSpec.methodBuilder("load")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(jedis, "jedis")
@@ -560,10 +517,8 @@ public class Generator {
                     .addParameter(classe, "objet")
                     .returns(void.class);
 
-            for (Method method : classe.getDeclaredMethods())
-            {
-                if (method.getName().startsWith("set"))
-                {
+            for (Method method : classe.getDeclaredMethods()) {
+                if (method.getName().startsWith("set")) {
                     getter.addStatement("objet." + method.getName() + "($T.convert("
                             + method.getParameters()[0].getType().getName() + ".class, jedis.hget(key, \""
                             + method.getName().substring(3) + "\")))", converter);
@@ -573,8 +528,7 @@ public class Generator {
         }
 
         //Setters
-        for (Class classe : toCreate)
-        {
+        for (Class classe : toCreate) {
             MethodSpec.Builder setter = MethodSpec.methodBuilder("send")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(jedis, "jedis")
@@ -582,10 +536,8 @@ public class Generator {
                     .addParameter(classe, "objet")
                     .returns(void.class);
 
-            for (Method method : classe.getDeclaredMethods())
-            {
-                if (method.getName().startsWith("get"))
-                {
+            for (Method method : classe.getDeclaredMethods()) {
+                if (method.getName().startsWith("get")) {
                     setter.addStatement("jedis.hset(key, \"" + method.getName().substring(3) + "\","
                             + " \"\" + objet." + method.getName() + "())");
                 }
@@ -597,13 +549,12 @@ public class Generator {
         toBuild.add(file);
     }
 
-    public static void build()
-    {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void build() {
         try {
             File file = new File("./Generation");
             file.delete();
-            for (JavaFile javaFile : toBuild)
-            {
+            for (JavaFile javaFile : toBuild) {
                 javaFile.writeTo(file);
             }
         } catch (IOException e) {
@@ -611,16 +562,14 @@ public class Generator {
         }
     }
 
-    public static MethodSpec getMethod(String name, TypeName retur)
-    {
+    public static MethodSpec getMethod(String name, TypeName retur) {
         MethodSpec.Builder getter = MethodSpec.methodBuilder(name);
         getter.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
         getter.returns(retur);
         return getter.build();
     }
 
-    public static MethodSpec getMethod(String name, Type retur)
-    {
+    public static MethodSpec getMethod(String name, Type retur) {
         return getMethod(name, TypeName.get(retur));
     }
 
@@ -630,10 +579,13 @@ public class Generator {
     private static double similarity(String s1, String s2) {
         String longer = s1, shorter = s2;
         if (s1.length() < s2.length()) { // longer should always have greater length
-            longer = s2; shorter = s1;
+            longer = s2;
+            shorter = s1;
         }
         int longerLength = longer.length();
-        if (longerLength == 0) { return 1.0; /* both strings are zero length */ }
+        if (longerLength == 0) {
+            return 1.0; /* both strings are zero length */
+        }
         /* // If you have StringUtils, you can use it to calculate the edit distance:
         return (longerLength - StringUtils.getLevenshteinDistance(longer, shorter)) /
                                                              (double) longerLength; */

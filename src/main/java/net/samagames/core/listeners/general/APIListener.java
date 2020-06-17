@@ -20,13 +20,11 @@ import org.bukkit.event.Listener;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-abstract class APIListener implements Listener
-{
+abstract class APIListener implements Listener {
     final APIPlugin plugin;
     final ApiImplementation api;
 
-    APIListener(APIPlugin plugin)
-    {
+    APIListener(APIPlugin plugin) {
         this.plugin = plugin;
         this.api = plugin.getAPI();
     }

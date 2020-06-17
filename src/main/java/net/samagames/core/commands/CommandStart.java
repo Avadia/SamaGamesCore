@@ -22,21 +22,17 @@ import org.bukkit.command.CommandSender;
  * You should have received a copy of the GNU General Public License
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class CommandStart extends AbstractCommand
-{
-    public CommandStart(APIPlugin plugin)
-    {
+public class CommandStart extends AbstractCommand {
+    public CommandStart(APIPlugin plugin) {
         super(plugin);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, String label, String[] arguments)
-    {
+    public boolean onCommand(CommandSender sender, String label, String[] arguments) {
         if (!hasPermission(sender, "api.game.start"))
             return true;
 
-        if(SamaGamesAPI.get().getGameManager().getGame() == null)
-        {
+        if (SamaGamesAPI.get().getGameManager().getGame() == null) {
             sender.sendMessage(ChatColor.RED + "Ceci n'est pas un serveur de jeu.");
             return true;
         }
