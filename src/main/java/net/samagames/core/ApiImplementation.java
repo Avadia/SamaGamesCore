@@ -26,7 +26,6 @@ import net.samagames.core.api.resourcepacks.ResourcePacksManagerImpl;
 import net.samagames.core.api.settings.SettingsManager;
 import net.samagames.core.api.shops.ShopsManager;
 import net.samagames.core.api.stats.StatsManager;
-import net.samagames.core.api.storage.StorageManager;
 import net.samagames.core.listeners.pubsub.GlobalUpdateListener;
 import net.samagames.persistanceapi.GameServiceManager;
 import net.samagames.tools.SkyFactory;
@@ -72,8 +71,6 @@ public class ApiImplementation extends SamaGamesAPI {
     private final AchievementManager achievementManager;
     private GameManager gameManager;
 
-    private final StorageManager storageManager;
-
     private final RemoteAccessManager remoteAccessManager;
 
     private final ServerOptions serverOptions;
@@ -96,8 +93,6 @@ public class ApiImplementation extends SamaGamesAPI {
         this.pubSub.subscribe("commands.servers.all", new RemoteCommandsHandler(plugin));
 
         this.serverOptions = new ServerOptions();
-
-        storageManager = new StorageManager(plugin);
 
         npcManager = new NPCManager(this);
         achievementManager = new AchievementManager(this);
@@ -277,10 +272,6 @@ public class ApiImplementation extends SamaGamesAPI {
 
     public RemoteAccessManager getRemoteAccessManager() {
         return remoteAccessManager;
-    }
-
-    public StorageManager getStorageManager() {
-        return storageManager;
     }
 
     @Override
