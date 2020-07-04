@@ -88,5 +88,4 @@ public class DatabaseConnector {
             Bukkit.shutdown();
         }
     }
-
 }

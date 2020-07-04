@@ -18,10 +18,6 @@ import net.samagames.core.api.parties.PartyListener;
 import net.samagames.core.api.permissions.PermissionManager;
 import net.samagames.core.api.player.PlayerDataManager;
 import net.samagames.core.api.pubsub.PubSubAPI;
-import net.samagames.core.api.remoteaccess.RemoteAccessManager;
-import net.samagames.core.api.remoteaccess.functions.ServerFunction;
-import net.samagames.core.api.remoteaccess.functions.StopFunction;
-import net.samagames.core.api.remoteaccess.functions.WhitelistFunction;
 import net.samagames.core.api.resourcepacks.ResourcePacksManagerImpl;
 import net.samagames.core.api.settings.SettingsManager;
 import net.samagames.core.api.shops.ShopsManager;
@@ -70,8 +66,6 @@ public class ApiImplementation extends SamaGamesAPI {
     private final CameraManager cameraManager;
     private final AchievementManager achievementManager;
     private GameManager gameManager;
-
-    private final RemoteAccessManager remoteAccessManager;
 
     private final ServerOptions serverOptions;
 
@@ -123,15 +117,6 @@ public class ApiImplementation extends SamaGamesAPI {
         permissionsManager = new PermissionManager(this);
         friendsManager = new FriendsManager(this);
         this.shopsManager = new ShopsManager(this);
-
-        this.remoteAccessManager = new RemoteAccessManager();
-        try {
-            remoteAccessManager.registerMBean(new WhitelistFunction());
-            remoteAccessManager.registerMBean(new StopFunction());
-            remoteAccessManager.registerMBean(new ServerFunction());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         PartyListener partyListener = new PartyListener(getPartiesManager());
         this.pubSub.subscribe("parties.disband", partyListener);
@@ -268,10 +253,6 @@ public class ApiImplementation extends SamaGamesAPI {
 
     public void setKeepCache(boolean keepCache) {
         this.keepCache = keepCache;
-    }
-
-    public RemoteAccessManager getRemoteAccessManager() {
-        return remoteAccessManager;
     }
 
     @Override
