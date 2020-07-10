@@ -231,7 +231,7 @@ public class APIPlugin extends JavaPlugin implements Listener {
             }
         }
 
-        //registerServer();
+        registerServer();
         allowJoin();
         this.startTimer = getServer().getScheduler().runTaskTimer(this, this::postInit, 20L, 20L);
     }
@@ -307,20 +307,20 @@ public class APIPlugin extends JavaPlugin implements Listener {
         try {
             String bungeename = getServerName();
 
-            Jedis rb_jedis = databaseConnector.getBungeeResource();
-            rb_jedis.hset("servers", bungeename, this.getServer().getIp() + ":" + this.getServer().getPort());
-            rb_jedis.close();
+//            Jedis rb_jedis = databaseConnector.getBungeeResource();
+//            rb_jedis.hset("servers", bungeename, this.getServer().getIp() + ":" + this.getServer().getPort());
+//            rb_jedis.close();
 
 
-            api.getPubSub().send("servers", "heartbeat " + bungeename + " " + this.getServer().getIp() + " " + this.getServer().getPort());
+            api.getPubSub().send("servers", "heartbeat " + bungeename);
 
             getExecutor().scheduleAtFixedRate(() -> {
                 try {
-                    Jedis jedis = databaseConnector.getBungeeResource();
-                    jedis.hset("servers", bungeename, getServer().getIp() + ":" + getServer().getPort());
-                    jedis.close();
+//                    Jedis jedis = databaseConnector.getBungeeResource();
+//                    jedis.hset("servers", bungeename, getServer().getIp() + ":" + getServer().getPort());
+//                    jedis.close();
 
-                    api.getPubSub().send("servers", "heartbeat " + getServerName() + " " + getServer().getIp() + " " + getServer().getPort());
+                    api.getPubSub().send("servers", "heartbeat " + getServerName());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
