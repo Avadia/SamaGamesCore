@@ -57,12 +57,15 @@ public class ChatHandleListener extends APIListener implements IPacketsReceiver 
 
         Jedis jedis = api.getBungeeResource();
 
-        for (String blacklisted : jedis.smembers("chat:blacklist")) {
-            if (blacklisted.contains("="))
-                blacklist.put(blacklisted.split("=")[0], blacklisted.split("=")[1]);
-            else
-                blacklist.put(blacklisted, null);
-        }
+        if (jedis.exists("chat:blacklist"))
+            for (String blacklisted : jedis.smembers("chat:blacklist")) {
+                if (blacklisted.contains("="))
+                    blacklist.put(blacklisted.split("=")[0], blacklisted.split("=")[1]);
+                else
+                    blacklist.put(blacklisted, null);
+            }
+        else
+            api.getPlugin().getLogger().warning("chat:blacklist not found");
 
         jedis.close();
     }

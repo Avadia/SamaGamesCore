@@ -231,7 +231,7 @@ public class APIPlugin extends JavaPlugin implements Listener {
             }
         }
 
-        registerServer();
+        //registerServer();
         allowJoin();
         this.startTimer = getServer().getScheduler().runTaskTimer(this, this::postInit, 20L, 20L);
     }

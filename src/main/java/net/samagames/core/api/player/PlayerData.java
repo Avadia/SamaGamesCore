@@ -70,7 +70,7 @@ public class PlayerData extends AbstractPlayerData {
                 null,
                 null,
                 null,
-                1);
+                0);
 
         refreshData();
     }

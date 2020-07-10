@@ -1,5 +1,6 @@
 package net.samagames.core.api.permissions;
 
+import fr.farmvivi.api.commons.Messages;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.permissions.IPermissionsEntity;
 import net.samagames.api.permissions.IPermissionsManager;
@@ -40,7 +41,7 @@ public class PermissionManager implements IPermissionsManager {
 
     public PermissionManager(ApiImplementation api) {
         this.api = api;
-        this.isLobby = SamaGamesAPI.get().getServerName().startsWith("Hub");
+        this.isLobby = SamaGamesAPI.get().getServerName().startsWith(Messages.HUB.getMessage());
         Bukkit.getLogger().info("Lobby mode was set to : " + isLobby);
     }
 

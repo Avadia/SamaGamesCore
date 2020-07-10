@@ -33,7 +33,6 @@ public class GlobalJoinListener implements Listener {
     private final ApiImplementation api;
 
     public GlobalJoinListener(ApiImplementation api) {
-
         this.api = api;
     }
 
