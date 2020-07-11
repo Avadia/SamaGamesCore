@@ -37,7 +37,7 @@ public class GlobalJoinListener implements Listener {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
         try {
             long startTime = System.currentTimeMillis();

@@ -17,7 +17,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -337,6 +339,15 @@ public class APIPlugin extends JavaPlugin implements Listener {
     /*
     Listen for join
 	 */
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
+        if (!allowJoin) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, ChatColor.RED + denyJoinReason);
+            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(ChatColor.RED + denyJoinReason);
+        }
+    }
 
     @EventHandler
     public void onLogin(PlayerLoginEvent event) {
