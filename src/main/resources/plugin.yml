@@ -4,6 +4,7 @@ version: 5.0.0
 authors: [geekpower14]
 website: http://samagames.net/
 load: STARTUP
+depend: [API]
 
 commands:
    start:
