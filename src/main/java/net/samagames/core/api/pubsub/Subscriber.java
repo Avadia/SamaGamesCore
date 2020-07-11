@@ -8,7 +8,6 @@ import redis.clients.jedis.JedisPubSub;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 
 /*
  * This file is part of SamaGamesCore.
@@ -54,7 +53,7 @@ class Subscriber extends JedisPubSub {
             if (receivers != null)
                 receivers.forEach((IPacketsReceiver receiver) -> receiver.receive(channel, message));
             else
-                APIPlugin.log(Level.WARNING, "{PubSub} Received message on a channel, but no packetsReceivers were found. (channel: " + channel + ", message:" + message + ")");
+                APIPlugin.getInstance().getLogger().warning("{PubSub} Received message on a channel, but no packetsReceivers were found. (channel: " + channel + ", message:" + message + ")");
 
             APIPlugin.getInstance().getDebugListener().receive("onlychannel", channel, message);
         } catch (Exception ignored) {
@@ -71,7 +70,7 @@ class Subscriber extends JedisPubSub {
             if (receivers != null)
                 receivers.forEach((IPatternReceiver receiver) -> receiver.receive(pattern, channel, message));
             else
-                APIPlugin.log(Level.WARNING, "{PubSub} Received pmessage on a channel, but no packetsReceivers were found.");
+                APIPlugin.getInstance().getLogger().warning("{PubSub} Received pmessage on a channel, but no packetsReceivers were found.");
 
             APIPlugin.getInstance().getDebugListener().receive(pattern, channel, message);
         } catch (Exception ignored) {

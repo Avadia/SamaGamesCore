@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
 
 /*
  * This file is part of SamaGamesCore.
@@ -47,7 +46,7 @@ class GameProperties implements IGameProperties {
             File file = new File(APIPlugin.getInstance().getDataFolder().getAbsoluteFile().getParentFile().getParentFile(), "game.json");
 
             if (!file.exists()) {
-                APIPlugin.log(Level.WARNING, "No game properties file found! If this serveur isn't a game server, don't worry about this message!");
+                APIPlugin.getInstance().getLogger().warning("No game properties file found! If this serveur isn't a game server, don't worry about this message!");
                 return;
             }
 
@@ -63,14 +62,14 @@ class GameProperties implements IGameProperties {
 
             if (!arenaFile.exists()) {
                 this.mapProperties = new JsonObject();
-                APIPlugin.log(Level.WARNING, "No arena properties file found! If this serveur isn't a game server, don't worry about this message!");
+                APIPlugin.getInstance().getLogger().warning("No arena properties file found! If this serveur isn't a game server, don't worry about this message!");
                 return;
             }
 
             this.mapProperties = new JsonParser().parse(new InputStreamReader(new FileInputStream(arenaFile), StandardCharsets.UTF_8)).getAsJsonObject();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            APIPlugin.log(Level.SEVERE, "Can't open the game properties file. Abort start!");
+            APIPlugin.getInstance().getLogger().severe("Can't open the game properties file. Abort start!");
             APIPlugin.getInstance().disable();
             Bukkit.shutdown();
         }

@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /*
  * This file is part of SamaGamesCore.
@@ -96,7 +95,7 @@ public class GameManager implements IGameManager {
             }
         }, 1L, 30L, TimeUnit.SECONDS);
 
-        APIPlugin.log(Level.INFO, "Registered game '" + game.getGameName() + "' successfuly!");
+        APIPlugin.getInstance().getLogger().info("Registered game '" + game.getGameName() + "' successfuly!");
     }
 
     public void rejoinTemplateQueue(Player p) {

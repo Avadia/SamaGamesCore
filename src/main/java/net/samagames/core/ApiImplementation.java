@@ -46,28 +46,25 @@ import redis.clients.jedis.Jedis;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class ApiImplementation extends SamaGamesAPI {
-    private static final String SLACK_LOGS_WEBHOOK_URL = "https://hooks.slack.com/services/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";
-
     private final APIPlugin plugin;
-    private final GuiManager guiManager;
-    private final SettingsManager settingsManager;
-    private final PlayerDataManager playerDataManager;
     private final PubSubAPI pubSub;
-    private final UUIDTranslator uuidTranslator;
-    private final JoinManagerImplement joinManager;
-    private final PartiesManager partiesManager;
-    private final ResourcePacksManagerImpl resourcePacksManager;
-    private final PermissionManager permissionsManager;
-    private final FriendsManager friendsManager;
-    private final SkyFactory skyFactory;
-    private final StatsManager statsManager;
-    private final ShopsManager shopsManager;
-    private final NPCManager npcManager;
-    private final CameraManager cameraManager;
-    private final AchievementManager achievementManager;
+    private GuiManager guiManager;
+    private SettingsManager settingsManager;
+    private PlayerDataManager playerDataManager;
+    private UUIDTranslator uuidTranslator;
+    private JoinManagerImplement joinManager;
+    private PartiesManager partiesManager;
+    private ResourcePacksManagerImpl resourcePacksManager;
+    private PermissionManager permissionsManager;
+    private FriendsManager friendsManager;
+    private SkyFactory skyFactory;
+    private StatsManager statsManager;
+    private ShopsManager shopsManager;
+    private NPCManager npcManager;
+    private CameraManager cameraManager;
+    private AchievementManager achievementManager;
     private GameManager gameManager;
-
-    private final ServerOptions serverOptions;
+    private ServerOptions serverOptions;
 
     private boolean keepCache = false;
 
@@ -86,37 +83,11 @@ public class ApiImplementation extends SamaGamesAPI {
         this.pubSub.subscribe("commands.servers." + getServerName(), new RemoteCommandsHandler(plugin));
         this.pubSub.subscribe("commands.servers.all", new RemoteCommandsHandler(plugin));
 
-        this.serverOptions = new ServerOptions();
-
-        npcManager = new NPCManager(this);
-        achievementManager = new AchievementManager(this);
-
-        this.statsManager = new StatsManager(this);
-
-        JoinManagerImplement implement = new JoinManagerImplement(this);
-        this.joinManager = implement;
-
-        skyFactory = new SkyFactory(plugin);
-        cameraManager = new CameraManager(this);
-
-        guiManager = new GuiManager(plugin);
-
-        resourcePacksManager = new ResourcePacksManagerImpl(this);
-        settingsManager = new SettingsManager(this);
-        playerDataManager = new PlayerDataManager(this);
-
         ModerationJoinHandler moderationJoinHandler = new ModerationJoinHandler(this);
-        implement.registerHandler(moderationJoinHandler, -1);
-
+        getJoinManager().registerHandler(moderationJoinHandler, -1);
         pubSub.subscribe(plugin.getServerName(), moderationJoinHandler);
-        pubSub.subscribe("partyjoin." + getServerName(), new PartiesPubSub(this, implement));
-        pubSub.subscribe("join." + getServerName(), new RegularJoinHandler(implement));
-
-        uuidTranslator = new UUIDTranslator(plugin, this);
-        partiesManager = new PartiesManager(this);
-        permissionsManager = new PermissionManager(this);
-        friendsManager = new FriendsManager(this);
-        this.shopsManager = new ShopsManager(this);
+        pubSub.subscribe("partyjoin." + getServerName(), new PartiesPubSub(this, getJoinManager()));
+        pubSub.subscribe("join." + getServerName(), new RegularJoinHandler(getJoinManager()));
 
         PartyListener partyListener = new PartyListener(getPartiesManager());
         this.pubSub.subscribe("parties.disband", partyListener);
@@ -126,44 +97,44 @@ public class ApiImplementation extends SamaGamesAPI {
         this.pubSub.subscribe("parties.lead", partyListener);
     }
 
-    private static Slack getSlackPublisher() {
-        return new Slack(ApiImplementation.SLACK_LOGS_WEBHOOK_URL).icon(":smiley_cat:").sendToChannel("_developpement-logs").displayName("Meow");
-    }
-
     public void onShutdown() {
         this.playerDataManager.onShutdown();
-
         this.pubSub.disable();
-    }
-
-    @Override
-    public PermissionManager getPermissionsManager() {
-        return permissionsManager;
-    }
-
-    @Override
-    public ServerOptions getServerOptions() {
-        return serverOptions;
-    }
-
-    @Override
-    public NPCManager getNPCManager() {
-        return npcManager;
-    }
-
-    @Override
-    public ResourcePacksManagerImpl getResourcePacksManager() {
-        return resourcePacksManager;
-    }
-
-    @Override
-    public FriendsManager getFriendsManager() {
-        return friendsManager;
     }
 
     @Override
     public APIPlugin getPlugin() {
         return plugin;
+    }
+
+    @Override
+    public Slack getSlackLogsPublisher() {
+        return new Slack(plugin.getConfig().getString("slack")).icon(":smiley_cat:").displayName("Meow");
+    }
+
+    @Override
+    public PermissionManager getPermissionsManager() {
+        return (permissionsManager == null) ? (this.permissionsManager = new PermissionManager(this)) : this.permissionsManager;
+    }
+
+    @Override
+    public ServerOptions getServerOptions() {
+        return (serverOptions == null) ? (this.serverOptions = new ServerOptions()) : this.serverOptions;
+    }
+
+    @Override
+    public NPCManager getNPCManager() {
+        return (npcManager == null) ? (this.npcManager = new NPCManager(this)) : this.npcManager;
+    }
+
+    @Override
+    public ResourcePacksManagerImpl getResourcePacksManager() {
+        return (resourcePacksManager == null) ? (this.resourcePacksManager = new ResourcePacksManagerImpl(this)) : this.resourcePacksManager;
+    }
+
+    @Override
+    public FriendsManager getFriendsManager() {
+        return (friendsManager == null) ? (this.friendsManager = new FriendsManager(this)) : this.friendsManager;
     }
 
     @Override
@@ -173,66 +144,61 @@ public class ApiImplementation extends SamaGamesAPI {
 
     @Override
     public PartiesManager getPartiesManager() {
-        return partiesManager;
+        return (partiesManager == null) ? (this.partiesManager = new PartiesManager(this)) : this.partiesManager;
     }
 
     @Override
     public SkyFactory getSkyFactory() {
-        return skyFactory;
+        return (skyFactory == null) ? (this.skyFactory = new SkyFactory(plugin)) : this.skyFactory;
     }
 
     @Override
     public CameraManager getCameraManager() {
-        return cameraManager;
-    }
-
-    @Override
-    public Slack getSlackLogsPublisher() {
-        return getSlackPublisher();
+        return (cameraManager == null) ? (this.cameraManager = new CameraManager(this)) : this.cameraManager;
     }
 
     @Override
     public JoinManagerImplement getJoinManager() {
-        return joinManager;
+        return (joinManager == null) ? (this.joinManager = new JoinManagerImplement(this)) : this.joinManager;
     }
 
     @Override
     public StatsManager getStatsManager() {
-        return statsManager;
+        return (statsManager == null) ? (this.statsManager = new StatsManager(this)) : this.statsManager;
     }
 
     @Override
     public ShopsManager getShopsManager() {
-        return this.shopsManager;
+        return (shopsManager == null) ? (this.shopsManager = new ShopsManager(this)) : this.shopsManager;
     }
 
     @Override
     public GuiManager getGuiManager() {
-        return guiManager;
+        return (guiManager == null) ? (this.guiManager = new GuiManager(plugin)) : this.guiManager;
     }
 
     @Override
     public SettingsManager getSettingsManager() {
-        return settingsManager;
+        return (settingsManager == null) ? (this.settingsManager = new SettingsManager(this)) : this.settingsManager;
     }
 
     @Override
     public PlayerDataManager getPlayerManager() {
-        return playerDataManager;
+        return (playerDataManager == null) ? (this.playerDataManager = new PlayerDataManager(this)) : this.playerDataManager;
     }
 
     @Override
     public AchievementManager getAchievementManager() {
-        return achievementManager;
-    }
-
-    public PubSubAPI getPubSub() {
-        return pubSub;
+        return (achievementManager == null) ? (this.achievementManager = new AchievementManager(this)) : this.achievementManager;
     }
 
     @Override
     public UUIDTranslator getUUIDTranslator() {
-        return uuidTranslator;
+        return (uuidTranslator == null) ? (this.uuidTranslator = new UUIDTranslator(plugin, this)) : this.uuidTranslator;
+    }
+
+    public PubSubAPI getPubSub() {
+        return pubSub;
     }
 
     public Jedis getBungeeResource() {

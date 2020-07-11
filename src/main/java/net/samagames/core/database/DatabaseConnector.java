@@ -28,12 +28,8 @@ import java.util.logging.Level;
 public class DatabaseConnector {
     private final APIPlugin plugin;
     private JedisPool cachePool;
-    private RedisServer bungee;
+    private final RedisServer bungee;
     private WhiteListRefreshTask keeper;
-
-    public DatabaseConnector(APIPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     public DatabaseConnector(APIPlugin plugin, RedisServer bungee) {
         this.plugin = plugin;
@@ -82,7 +78,7 @@ public class DatabaseConnector {
             this.cachePool = new JedisPool(config, this.bungee.getIp(), this.bungee.getPort(), 0, this.bungee.getPassword());
             this.cachePool.getResource().close();
 
-            APIPlugin.log(Level.INFO, "Connected to database.");
+            APIPlugin.getInstance().getLogger().info("Connected to database.");
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Can't connect to the database!", e);
             Bukkit.shutdown();

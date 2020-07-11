@@ -59,7 +59,7 @@ public class TeamManager {
             vt.setSuffix(parseColor(groupsBean.getSuffix()));
 
             teamHandler.addTeam(vt);
-            APIPlugin.log("[TeamRegister] Team " + teamName + " ajoutée  --> " + vt.getPrefix() + " / " + vt.getName());
+            APIPlugin.getInstance().getLogger().info("[TeamRegister] Team " + teamName + " ajoutée  --> " + vt.getPrefix() + " / " + vt.getName());
         }
 
         manager.setFakeGroupBean(manager.getGroupByID(2));
@@ -67,9 +67,8 @@ public class TeamManager {
         TeamHandler.VTeam npc = teamHandler.createNewTeam("NPC", "NPC");
         npc.setRealName("NPC");
         npc.setHideToOtherTeams(true);
-        APIPlugin.log("[TeamRegister] Team NPC ajoutée  --> " + npc.getPrefix() + " / " + npc);
+        APIPlugin.getInstance().getLogger().info("[TeamRegister] Team NPC ajoutée  --> " + npc.getPrefix() + " / " + npc);
         teamHandler.addTeam(npc);
-
     }
 
     private String getTeamName(String name, int rank) {

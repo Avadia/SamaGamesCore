@@ -4,6 +4,7 @@ import net.samagames.core.ApiImplementation;
 import net.samagames.core.api.permissions.PermissionEntity;
 import net.samagames.core.api.permissions.PermissionManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,6 +13,7 @@ import org.bukkit.event.player.*;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 /*
  * This file is part of SamaGamesCore.
@@ -32,13 +34,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GlobalJoinListener implements Listener {
     private final ApiImplementation api;
 
+    private final String denyJoinReason = ChatColor.RED + "Serveur non initialisé.";
+
     public GlobalJoinListener(ApiImplementation api) {
         this.api = api;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
+        if (!api.getPlugin().isAllowJoin()) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, denyJoinReason);
+            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(denyJoinReason);
+
+            return;
+        }
         try {
             long startTime = System.currentTimeMillis();
             UUID player = event.getUniqueId();
@@ -118,6 +129,19 @@ public class GlobalJoinListener implements Listener {
             event.getPlayer().setOp(true);
 
         api.getPlugin().getLogger().info("Login Time: " + (System.currentTimeMillis() - startTime));
+    }
+
+    @EventHandler
+    public void onPlayerJoinChecks(PlayerLoginEvent event) {
+        if (api.getPlugin().getJoinPermission() != null && !api.getPermissionsManager().hasPermission(event.getPlayer(), api.getPlugin().getJoinPermission())) {
+            event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, "Vous n'avez pas la permission de rejoindre ce serveur.");
+        }
+
+        if (!api.getPlugin().getIpWhiteList().contains(event.getRealAddress().getHostAddress())) {
+            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(ChatColor.RED + "Erreur de connexion vers le serveur... Merci de bien vouloir ré-essayer plus tard.");
+            Bukkit.getLogger().log(Level.WARNING, "An user tried to connect from IP " + event.getRealAddress().getHostAddress());
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

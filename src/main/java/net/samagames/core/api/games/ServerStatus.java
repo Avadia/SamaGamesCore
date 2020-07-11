@@ -5,8 +5,6 @@ import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
 import net.samagames.core.APIPlugin;
 
-import java.util.logging.Level;
-
 /*
  * This file is part of SamaGamesCore.
  *
@@ -45,7 +43,7 @@ public class ServerStatus {
         SamaGamesAPI.get().getPubSub().send("serverUpdateChannel", json);
         //SamaGamesAPI.get().getPubSub().send("hubsChannel", json);
 
-        APIPlugin.log(Level.INFO, "Sended server status to Hydroangeas. (" + json + ")");
+        APIPlugin.getInstance().getLogger().info("Sended server status to Hydroangeas. (" + json + ")");
     }
 
     public String getBungeeName() {
