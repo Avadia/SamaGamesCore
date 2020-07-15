@@ -194,8 +194,9 @@ public class APIPlugin extends JavaPlugin {
             getLogger().info("Removing private commands...");
             CommandBlocker.removeCommands();
             getLogger().info("Removed private commands.");
-            getServer().setWhitelist(false);
+            getServer().getWorlds().get(0).setGameRuleValue("announceAdvancements", "false");
             allowJoin = true;
+            getServer().setWhitelist(false);
             getLogger().info("Trying to register server to the proxy");
             try {
                 api.getPubSub().send("servers", "heartbeat " + serverName);
