@@ -23,10 +23,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import redis.clients.jedis.Jedis;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /*
@@ -51,21 +48,20 @@ public class ChatHandleListener extends APIListener implements IPacketsReceiver 
     private final ConcurrentHashMap<UUID, Date> mutedPlayers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, String> muteReasons = new ConcurrentHashMap<>();
 
-    @SuppressWarnings("ConstantConditions")
     public ChatHandleListener(APIPlugin plugin) {
         super(plugin);
 
         Jedis jedis = api.getBungeeResource();
 
-        if (jedis.exists("chat:blacklist"))
-            for (String blacklisted : jedis.smembers("chat:blacklist")) {
+        Set<String> blacklisteds = jedis.smembers("chat:blacklist");
+        if (!blacklisteds.isEmpty())
+            for (String blacklisted : blacklisteds) {
                 if (blacklisted.contains("="))
                     blacklist.put(blacklisted.split("=")[0], blacklisted.split("=")[1]);
                 else
+                    //noinspection ConstantConditions
                     blacklist.put(blacklisted, null);
             }
-        else
-            api.getPlugin().getLogger().warning("chat:blacklist not found");
 
         jedis.close();
     }
