@@ -226,6 +226,7 @@ public class APIPlugin extends JavaPlugin {
         }
         api.onShutdown();
         databaseConnector.killConnection();
+        gameServiceManager.disconnect();
         getServer().shutdown();
     }
 
