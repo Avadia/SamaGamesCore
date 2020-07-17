@@ -2,6 +2,7 @@ package net.samagames.core.listeners.general;
 
 import net.md_5.bungee.api.ChatColor;
 import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.achievements.exceptions.AchivementNotFoundException;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.Status;
 import net.samagames.api.pubsub.IPacketsReceiver;
@@ -53,15 +54,18 @@ public class ChatHandleListener extends APIListener implements IPacketsReceiver 
 
         Jedis jedis = api.getBungeeResource();
 
-        Set<String> blacklisteds = jedis.smembers("chat:blacklist");
-        if (!blacklisteds.isEmpty())
-            for (String blacklisted : blacklisteds) {
-                if (blacklisted.contains("="))
-                    blacklist.put(blacklisted.split("=")[0], blacklisted.split("=")[1]);
-                else
-                    //noinspection ConstantConditions
-                    blacklist.put(blacklisted, null);
+        if (jedis.exists("chat:blacklist")) {
+            Set<String> blacklisteds = jedis.smembers("chat:blacklist");
+            if (!blacklisteds.isEmpty()) {
+                for (String blacklisted : blacklisteds) {
+                    if (blacklisted.contains("="))
+                        blacklist.put(blacklisted.split("=")[0], blacklisted.split("=")[1]);
+                    else
+                        //noinspection ConstantConditions
+                        blacklist.put(blacklisted, null);
+                }
             }
+        }
 
         jedis.close();
     }
@@ -164,7 +168,13 @@ public class ChatHandleListener extends APIListener implements IPacketsReceiver 
         event.setMessage(message);
 
         if (SamaGamesAPI.get().getGameManager().getGame() != null && SamaGamesAPI.get().getGameManager().getGame().getStatus() == Status.FINISHED && event.getMessage().equalsIgnoreCase("gg"))
-            Bukkit.getScheduler().runTask(this.plugin, () -> SamaGamesAPI.get().getAchievementManager().getAchievementByID(21).unlock(player.getUniqueId()));
+            Bukkit.getScheduler().runTask(this.plugin, () -> {
+                try {
+                    SamaGamesAPI.get().getAchievementManager().getAchievementByID(21).unlock(player.getUniqueId());
+                } catch (AchivementNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
 
         PermissionEntity user = api.getPermissionsManager().getPlayer(player.getUniqueId());
 

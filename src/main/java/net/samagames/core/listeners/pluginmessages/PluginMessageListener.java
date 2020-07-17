@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import net.samagames.api.achievements.Achievement;
 import net.samagames.api.achievements.IncrementationAchievement;
+import net.samagames.api.achievements.exceptions.AchivementNotFoundException;
 import net.samagames.core.ApiImplementation;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -79,7 +80,13 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
 
             Bukkit.getScheduler().runTask(this.api.getPlugin(), () ->
             {
-                Achievement achievement = this.api.getAchievementManager().getAchievementByID(achievementId);
+                Achievement achievement;
+                try {
+                    achievement = this.api.getAchievementManager().getAchievementByID(achievementId);
+                } catch (AchivementNotFoundException e) {
+                    e.printStackTrace();
+                    return;
+                }
 
                 if (forTheOthers) {
                     Bukkit.getOnlinePlayers().stream().filter(p -> p.getUniqueId() != playerForUnlock).forEach(p ->

@@ -2,6 +2,7 @@ package net.samagames.core;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import net.samagames.api.achievements.exceptions.AchivementNotFoundException;
 import net.samagames.core.api.hydroangeas.HydroangeasManager;
 import net.samagames.core.database.DatabaseConnector;
 import net.samagames.core.database.RedisServer;
@@ -161,7 +162,13 @@ public class APIPlugin extends JavaPlugin {
 
         this.getServer().getScheduler().runTaskTimer(this, () -> {
             for (Player player : this.getServer().getOnlinePlayers())
-                Arrays.asList(35, 36, 37, 38, 39).forEach(id -> api.getAchievementManager().incrementAchievement(player.getUniqueId(), id, 1));
+                Arrays.asList(35, 36, 37, 38, 39).forEach(id -> {
+                    try {
+                        api.getAchievementManager().incrementAchievement(player.getUniqueId(), id, 1);
+                    } catch (AchivementNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                });
         }, 20L * 60, 20L * 60);
 
         PluginMessageListener pluginMessageListener = new PluginMessageListener(api);

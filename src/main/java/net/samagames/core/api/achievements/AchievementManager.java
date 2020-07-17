@@ -2,6 +2,7 @@ package net.samagames.core.api.achievements;
 
 import com.google.common.base.Preconditions;
 import net.samagames.api.achievements.*;
+import net.samagames.api.achievements.exceptions.AchivementNotFoundException;
 import net.samagames.core.ApiImplementation;
 import net.samagames.core.api.player.PlayerData;
 import net.samagames.persistanceapi.beans.achievements.AchievementBean;
@@ -81,9 +82,11 @@ public class AchievementManager implements IAchievementManager {
             List<AchievementProgressBean> list = this.api.getGameServiceManager().getAchievementProgresses(playerData.getPlayerBean());
             list.forEach(bean ->
             {
-                Achievement achievement = this.getAchievementByID(bean.getAchievementId());
-                if (achievement != null)
-                    achievement.addProgress(uuid, bean.getProgressId(), bean.getProgress(), bean.getStartDate(), bean.getUnlockDate());
+                try {
+                    this.getAchievementByID(bean.getAchievementId()).addProgress(uuid, bean.getProgressId(), bean.getProgress(), bean.getStartDate(), bean.getUnlockDate());
+                } catch (AchivementNotFoundException e) {
+                    e.printStackTrace();
+                }
             });
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -116,9 +119,8 @@ public class AchievementManager implements IAchievementManager {
     }
 
     @Override
-    public void incrementAchievement(UUID uuid, int id, int amount) {
+    public void incrementAchievement(UUID uuid, int id, int amount) throws AchivementNotFoundException {
         Achievement achievement = this.getAchievementByID(id);
-        Preconditions.checkNotNull(achievement, "Achievement with id " + id + " not found");
         if (achievement instanceof IncrementationAchievement)
             ((IncrementationAchievement) achievement).increment(uuid, amount);
         else
@@ -126,30 +128,27 @@ public class AchievementManager implements IAchievementManager {
     }
 
     @Override
-    public void incrementAchievements(UUID uuid, int[] ids, int amount) {
-        for (int id : ids) {
-            Achievement achievement = this.getAchievementByID(id);
-            if (achievement instanceof IncrementationAchievement)
-                ((IncrementationAchievement) achievement).increment(uuid, amount);
-        }
+    public void incrementAchievements(UUID uuid, int[] ids, int amount) throws AchivementNotFoundException {
+        for (int id : ids)
+            this.incrementAchievement(uuid, id, amount);
     }
 
     @Override
-    public Achievement getAchievementByID(int id) {
+    public Achievement getAchievementByID(int id) throws AchivementNotFoundException {
         for (Achievement achievement : this.achievementsCache)
             if (achievement.getID() == id)
                 return achievement;
 
-        return null;
+        throw new AchivementNotFoundException("Achievement with id " + id + " not found");
     }
 
     @Override
-    public AchievementCategory getAchievementCategoryByID(int id) {
+    public AchievementCategory getAchievementCategoryByID(int id) throws AchivementNotFoundException {
         for (AchievementCategory achievementCategory : this.achievementCategoriesCache)
             if (achievementCategory.getID() == id)
                 return achievementCategory;
 
-        return null;
+        throw new AchivementNotFoundException("AchievementCategory with id " + id + " not found");
     }
 
     @Override
@@ -168,7 +167,7 @@ public class AchievementManager implements IAchievementManager {
     }
 
     @Override
-    public boolean isUnlocked(UUID uuid, int id) {
+    public boolean isUnlocked(UUID uuid, int id) throws AchivementNotFoundException {
         Achievement achievement = this.getAchievementByID(id);
         Preconditions.checkNotNull(achievement, "Achievement with id " + id + " not found");
         return achievement.isUnlocked(uuid);
