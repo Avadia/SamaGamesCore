@@ -60,7 +60,7 @@ public class PermissionManager implements IPermissionsManager {
     }
 
     public void unloadPlayer(Player player) {
-        if (!api.isKeepCache()) {
+        if (!api.isKeepCache() && cache.containsKey(player.getUniqueId())) {
             cache.get(player.getUniqueId()).unloadPlayer(player);
             cache.remove(player.getUniqueId());
         }
