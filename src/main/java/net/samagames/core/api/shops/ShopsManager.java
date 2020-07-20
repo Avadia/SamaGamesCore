@@ -50,9 +50,11 @@ public class ShopsManager implements IShopsManager {
                 List<ItemDescriptionBean> allItemDescription = api.getGameServiceManager().getAllItemDescription();
                 int n = allItemDescription.size();
 
-                itemsCache = new ItemDescription[Math.max(n, allItemDescription.get(n - 1).getItemId())];
-                for (ItemDescriptionBean bean : allItemDescription) {
-                    itemsCache[bean.getItemId()] = new ItemDescription(bean);
+                if (n != 0) {
+                    itemsCache = new ItemDescription[Math.max(n, allItemDescription.get(n - 1).getItemId())];
+                    for (ItemDescriptionBean bean : allItemDescription) {
+                        itemsCache[bean.getItemId()] = new ItemDescription(bean);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
