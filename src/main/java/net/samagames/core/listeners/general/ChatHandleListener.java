@@ -2,7 +2,7 @@ package net.samagames.core.listeners.general;
 
 import net.md_5.bungee.api.ChatColor;
 import net.samagames.api.SamaGamesAPI;
-import net.samagames.api.achievements.exceptions.AchivementNotFoundException;
+import net.samagames.api.exceptions.DataNotFoundException;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.Status;
 import net.samagames.api.pubsub.IPacketsReceiver;
@@ -171,7 +171,7 @@ public class ChatHandleListener extends APIListener implements IPacketsReceiver 
             Bukkit.getScheduler().runTask(this.plugin, () -> {
                 try {
                     SamaGamesAPI.get().getAchievementManager().getAchievementByID(21).unlock(player.getUniqueId());
-                } catch (AchivementNotFoundException e) {
+                } catch (DataNotFoundException e) {
                     e.printStackTrace();
                 }
             });

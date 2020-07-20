@@ -1,5 +1,6 @@
 package net.samagames.core.api.shops;
 
+import net.samagames.api.exceptions.DataNotFoundException;
 import net.samagames.api.games.GamesNames;
 import net.samagames.api.shops.IShopsManager;
 import net.samagames.core.ApiImplementation;
@@ -88,22 +89,22 @@ public class ShopsManager implements IShopsManager {
     }
 
     @Override
-    public ItemDescription getItemDescription(int itemID) throws Exception {
+    public ItemDescription getItemDescription(int itemID) throws DataNotFoundException {
         try {
             return itemsCache[itemID];
         } catch (Exception e) {
-            throw new Exception("Item with id: " + itemID + " not found");
+            throw new DataNotFoundException("Item with id: " + itemID + " not found");
         }
     }
 
     @Override
-    public ItemDescription getItemDescriptionByName(String itemName) throws Exception {
+    public ItemDescription getItemDescriptionByName(String itemName) throws DataNotFoundException {
         for (ItemDescription description : itemsCache) {
             if (description.getItemName().equals(itemName)) {
                 return description;
             }
         }
-        throw new Exception("Item with name: " + itemName + " not found");
+        throw new DataNotFoundException("Item with name: " + itemName + " not found");
     }
 
     @Override

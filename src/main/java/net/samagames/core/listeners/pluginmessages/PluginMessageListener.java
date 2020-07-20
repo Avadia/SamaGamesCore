@@ -4,7 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import net.samagames.api.achievements.Achievement;
 import net.samagames.api.achievements.IncrementationAchievement;
-import net.samagames.api.achievements.exceptions.AchivementNotFoundException;
+import net.samagames.api.exceptions.DataNotFoundException;
 import net.samagames.core.ApiImplementation;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -83,7 +83,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 Achievement achievement;
                 try {
                     achievement = this.api.getAchievementManager().getAchievementByID(achievementId);
-                } catch (AchivementNotFoundException e) {
+                } catch (DataNotFoundException e) {
                     e.printStackTrace();
                     return;
                 }

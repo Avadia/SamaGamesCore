@@ -94,7 +94,6 @@ public class PlayerDataManager implements IPlayerDataManager {
         if (!api.isKeepCache()) {
             Bukkit.getScheduler().runTaskLater(api.getPlugin(), () -> cache.remove(player), 2L);
         }
-
     }
 
     //TODO nickname

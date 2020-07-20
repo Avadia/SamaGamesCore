@@ -2,7 +2,7 @@ package net.samagames.core;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import net.samagames.api.achievements.exceptions.AchivementNotFoundException;
+import net.samagames.api.exceptions.DataNotFoundException;
 import net.samagames.core.api.hydroangeas.HydroangeasManager;
 import net.samagames.core.database.DatabaseConnector;
 import net.samagames.core.database.RedisServer;
@@ -165,7 +165,7 @@ public class APIPlugin extends JavaPlugin {
                 Arrays.asList(35, 36, 37, 38, 39).forEach(id -> {
                     try {
                         api.getAchievementManager().incrementAchievement(player.getUniqueId(), id, 1);
-                    } catch (AchivementNotFoundException e) {
+                    } catch (DataNotFoundException e) {
                         e.printStackTrace();
                     }
                 });
