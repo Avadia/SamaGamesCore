@@ -209,10 +209,12 @@ public class APIPlugin extends JavaPlugin {
                 api.getPubSub().send("servers", "heartbeat " + serverName);
 
                 getExecutor().scheduleAtFixedRate(() -> {
-                    try {
-                        api.getPubSub().send("servers", "heartbeat " + getServerName());
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (this.isEnabled()) {
+                        try {
+                            api.getPubSub().send("servers", "heartbeat " + getServerName());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }, 30, 20, TimeUnit.SECONDS);
             } catch (Exception exception) {
