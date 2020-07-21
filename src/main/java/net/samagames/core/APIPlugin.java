@@ -204,22 +204,16 @@ public class APIPlugin extends JavaPlugin {
             getServer().getWorlds().get(0).setGameRuleValue("announceAdvancements", "false");
             allowJoin = true;
             getServer().setWhitelist(false);
-            getLogger().info("Trying to register server to the proxy");
-            try {
-                api.getPubSub().send("servers", "heartbeat " + serverName);
-
-                getExecutor().scheduleAtFixedRate(() -> {
-                    if (this.isEnabled()) {
-                        try {
-                            api.getPubSub().send("servers", "heartbeat " + getServerName());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+            getExecutor().scheduleAtFixedRate(() -> {
+                if (this.isEnabled()) {
+                    try {
+                        getLogger().info("Trying to register server to the proxy");
+                        api.getPubSub().send("servers", "heartbeat " + getServerName());
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                }, 30, 20, TimeUnit.SECONDS);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
+                }
+            }, 0, 60, TimeUnit.SECONDS);
         });
     }
 
