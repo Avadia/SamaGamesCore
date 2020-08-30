@@ -98,8 +98,10 @@ public class ApiImplementation extends SamaGamesAPI {
     }
 
     public void onShutdown() {
-        this.playerDataManager.onShutdown();
-        this.pubSub.disable();
+        if (this.playerDataManager != null)
+            this.playerDataManager.onShutdown();
+        if (this.pubSub != null)
+            this.pubSub.disable();
     }
 
     @Override
