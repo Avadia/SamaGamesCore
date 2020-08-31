@@ -6,6 +6,7 @@ import net.samagames.core.api.permissions.PermissionEntity;
 import net.samagames.core.api.permissions.PermissionManager;
 import net.samagames.persistanceapi.beans.players.GroupsBean;
 import net.samagames.tools.scoreboards.TeamHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.ExecutorService;
@@ -88,9 +89,9 @@ public class TeamManager {
     }
 
     public void playerJoin(final Player p) {
-        executor.execute(() -> {
-            teamHandler.addReceiver(p);
-            if (SamaGamesAPI.get().getServerOptions().hasRankTabColor()) {
+        executor.execute(() -> teamHandler.addReceiver(p));
+        if (SamaGamesAPI.get().getServerOptions().hasRankTabColor())
+            Bukkit.getScheduler().runTaskLater(SamaGamesAPI.get().getPlugin(), () -> executor.execute(() -> {
                 final PermissionEntity user = manager.getPlayer(p.getUniqueId());
                 //PlayerData playerData = api.getPlayerManager().getPlayerData(p.getUniqueId());
                 TeamHandler.VTeam teamByName = teamHandler.getTeamByName(user.getDisplayGroupName());
@@ -98,8 +99,7 @@ public class TeamManager {
                     teamByName = teamHandler.getTeamByName("Joueur");
                 }
                 teamHandler.addPlayerToTeam(p, teamByName);
-            }
-        });
+            }), 100L);
     }
 
     private String parseColor(String value) {
@@ -113,5 +113,4 @@ public class TeamManager {
     public TeamHandler getTeamHandler() {
         return teamHandler;
     }
-
 }
