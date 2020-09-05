@@ -322,6 +322,11 @@ public class PlayerData extends AbstractPlayerData {
         return this.getCustomName() != null && !this.getCustomName().equals("null");
     }
 
+    @Override
+    public long getDiscordID() {
+        return playerBean.getDiscordId();
+    }
+
     public UUID getFakeUUID() {
         return fakeUUID;
     }
