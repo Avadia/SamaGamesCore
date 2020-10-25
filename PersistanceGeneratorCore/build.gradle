@@ -17,14 +17,22 @@ repositories {
     mavenLocal()
     maven {
         url = "https://nexus.avadia.fr/repository/avadia-minecraft-release/"
+        credentials {
+            username avadiaUser
+            password avadiaPassword
+        }
     }
     maven {
         url = "https://nexus.avadia.fr/repository/avadia-minecraft-snapshot/"
+        credentials {
+            username avadiaUser
+            password avadiaPassword
+        }
     }
 }
 
 dependencies {
-    compile group: 'net.samagames', name: 'PersistanceAPI', version: '1.1.0-SNAPSHOT'
+    compile group: 'net.samagames', name: 'PersistanceAPI', version: '1.1.0-SNAPSHOT', changing: true
     compile group: 'net.samagames', name: 'SamaGamesAPI', version: '5.0.0-SNAPSHOT', changing: true
     compile group: 'com.squareup', name: 'javapoet', version: '1.13.0'
 }
