@@ -323,6 +323,11 @@ public class PlayerData extends AbstractPlayerData {
     }
 
     @Override
+    public boolean isLinkedToDiscord() {
+        return playerBean.getDiscordId() != 0L;
+    }
+
+    @Override
     public long getDiscordID() {
         return playerBean.getDiscordId();
     }
