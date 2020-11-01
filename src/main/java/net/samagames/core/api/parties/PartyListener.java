@@ -1,6 +1,7 @@
 package net.samagames.core.api.parties;
 
 import net.samagames.api.pubsub.IPacketsReceiver;
+import org.bukkit.Bukkit;
 
 import java.util.UUID;
 
@@ -49,10 +50,29 @@ public class PartyListener implements IPacketsReceiver {
                 }
                 break;
             }
-            case "join":
+            case "join": {
+                if (args.length < 1)
+                    return;
+
+                UUID player = UUID.fromString(args[0]);
+                if (Bukkit.getOfflinePlayer(player).isOnline())
+                    partiesManager.loadPlayer(player);
+                break;
+            }
             case "kick":
             case "leave":
-            case "lead":
+            case "lead": {
+                if (args.length < 2)
+                    return;
+
+                UUID oldPlayer = UUID.fromString(args[0]);
+                UUID newPlayer = UUID.fromString(args[1]);
+                if (Bukkit.getOfflinePlayer(oldPlayer).isOnline())
+                    partiesManager.loadPlayer(oldPlayer);
+                if (Bukkit.getOfflinePlayer(newPlayer).isOnline())
+                    partiesManager.loadPlayer(newPlayer);
+                break;
+            }
             case "disconnect": {
                 if (args.length < 2)
                     return;
