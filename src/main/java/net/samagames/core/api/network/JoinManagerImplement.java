@@ -118,7 +118,7 @@ public class JoinManagerImplement implements IJoinManager {
             //On sauvegarde le serveur ou se situe la partie (useless)
             new Thread(() -> {
                 Jedis jedis = SamaGamesAPI.get().getBungeeResource();
-                jedis.set("party:" + party.getParty() + ":server", SamaGamesAPI.get().getServerName());
+                jedis.set("party:" + party.getParty().toString() + ":server", SamaGamesAPI.get().getServerName());
                 jedis.close();
             }, "PartyUpdater").start();
         }
