@@ -42,11 +42,11 @@ public class PartiesManager implements IPartiesManager {
 
             if (party == null) {
                 Jedis jedis = api.getBungeeResource();
-                if (!jedis.exists("currentparty:" + player)) {
+                if (!jedis.exists("currentparty:" + player.toString())) {
                     jedis.close();
                     return;
                 }
-                UUID partieID = UUID.fromString(jedis.get("currentparty:" + player));
+                UUID partieID = UUID.fromString(jedis.get("currentparty:" + player.toString()));
                 loadParty(partieID);
                 jedis.close();
             }
@@ -58,8 +58,8 @@ public class PartiesManager implements IPartiesManager {
 
     public void loadParty(UUID party) {
         Jedis jedis = api.getBungeeResource();
-        String leader = jedis.get("party:" + party + ":lead");
-        Map<String, String> data = jedis.hgetAll("party:" + party + ":members");
+        String leader = jedis.get("party:" + party.toString() + ":lead");
+        Map<String, String> data = jedis.hgetAll("party:" + party.toString() + ":members");
         jedis.close();
         if (leader == null)
             return;
@@ -104,7 +104,7 @@ public class PartiesManager implements IPartiesManager {
     @Override
     public String getCurrentServer(UUID party) {
         Jedis jedis = api.getBungeeResource();
-        String server = jedis.get("party:" + party + ":server");
+        String server = jedis.get("party:" + party.toString() + ":server");
         jedis.close();
         return server;
     }
