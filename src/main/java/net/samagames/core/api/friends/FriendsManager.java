@@ -23,11 +23,9 @@ import java.util.*;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class FriendsManager implements IFriendsManager {
-    private final ApiImplementation api;
-
-    private final HashMap<UUID, FriendPlayer> cache;
-
     private static final String key = "friends:";
+    private final ApiImplementation api;
+    private final HashMap<UUID, FriendPlayer> cache;
 
     public FriendsManager(ApiImplementation api) {
         this.api = api;

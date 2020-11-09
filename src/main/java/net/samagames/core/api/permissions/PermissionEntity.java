@@ -31,19 +31,15 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class PermissionEntity implements IPermissionsEntity {
-    private final UUID uuid;
-    private final APIPlugin plugin;
-
-    private GroupsBean groupsBean;
-
-    //private PermissionAttachment attachment;
-
-    private final Map<String, Boolean> permissions = new HashMap<>();
     private static final String key = "permissions:";
     private static final String subkeyPerms = ":list";
+    private final UUID uuid;
 
+    //private PermissionAttachment attachment;
+    private final APIPlugin plugin;
+    private final Map<String, Boolean> permissions = new HashMap<>();
     private final PlayerData playerData;
-
+    private GroupsBean groupsBean;
     private PermissionAttachment attachment;
 
     public PermissionEntity(UUID player, APIPlugin plugin) {

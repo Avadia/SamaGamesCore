@@ -42,8 +42,8 @@ public class GameManager implements IGameManager {
 
     private final ConcurrentHashMap<UUID, Long> playerDisconnectedTime;
     private final GameProperties gameProperties;
-    private IGameStatisticsHelper gameStatisticsHelper;
     private final IPearlManager pearlManager;
+    private IGameStatisticsHelper gameStatisticsHelper;
     @SuppressWarnings("rawtypes")
     private Game game;
     private int maxReconnectTime;

@@ -44,7 +44,6 @@ public class Armor {
     public static Armor DIAMOND_LEGGINGS;
     public static Armor DIAMOND_BOOTS;
     public static Armor UNKNOWN;
-    private final int defensePoints;
 
     static {
         LEATHER_HELMET = new Armor(Material.LEATHER_HELMET, 1);
@@ -69,6 +68,8 @@ public class Armor {
         DIAMOND_BOOTS = new Armor(Material.DIAMOND_BOOTS, 3);
         UNKNOWN = new Armor(null, 0);
     }
+
+    private final int defensePoints;
 
     private Armor(Material material, int armorPoints) {
         this.defensePoints = armorPoints;

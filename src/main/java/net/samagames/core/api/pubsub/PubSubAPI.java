@@ -26,10 +26,8 @@ public class PubSubAPI implements IPubSubAPI {
 
     private final Sender sender;
     private final ApiImplementation api;
-
-    boolean working = true;
-
     private final Thread senderThread;
+    boolean working = true;
     private Thread patternThread;
     private Thread channelThread;
 

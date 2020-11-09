@@ -29,10 +29,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class ShopsManager implements IShopsManager {
     private final boolean[] shopToLoad;
-
-    private ItemDescription[] itemsCache;
     private final ConcurrentHashMap<UUID, PlayerShop> cache;
     private final ApiImplementation api;
+    private ItemDescription[] itemsCache;
 
     public ShopsManager(ApiImplementation api) {
         this.api = api;

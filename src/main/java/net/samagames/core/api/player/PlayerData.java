@@ -35,20 +35,14 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class PlayerData extends AbstractPlayerData {
+    private final static String key = "playerdata:";
     protected final ApiImplementation api;
     protected final PlayerDataManager manager;
-
-    private PlayerBean playerBean;
-
-    private long lastRefresh;
     private final UUID playerUUID;
-
+    private PlayerBean playerBean;
+    private long lastRefresh;
     private GameProfile fakeProfile;
-
     private UUID fakeUUID;
-
-    private final static String key = "playerdata:";
-
     private SanctionBean muteSanction = null;
 
     private boolean loaded = false;

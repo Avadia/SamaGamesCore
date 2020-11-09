@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class AchievementManager implements IAchievementManager {
+    private final ApiImplementation api;
     private Achievement[] achievementsCache;
     private AchievementCategory[] achievementCategoriesCache;
-    private final ApiImplementation api;
 
     public AchievementManager(ApiImplementation api) {
         this.api = api;

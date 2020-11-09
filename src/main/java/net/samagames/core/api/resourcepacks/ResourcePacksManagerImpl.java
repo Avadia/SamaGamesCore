@@ -40,13 +40,12 @@ import java.util.UUID;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class ResourcePacksManagerImpl implements IResourcePacksManager, Listener {
+    private final static String rejectMessage = ChatColor.RED + "Il est nécessaire d'accepter le ressource pack pour jouer.";
     private final List<UUID> currentlyDownloading = new ArrayList<>();
     private final SamaGamesAPI api;
     private final String resetUrl;
     private String forceUrl;
     private IResourceCallback callback;
-
-    private final static String rejectMessage = ChatColor.RED + "Il est nécessaire d'accepter le ressource pack pour jouer.";
 
     public ResourcePacksManagerImpl(SamaGamesAPI api) {
         Bukkit.getPluginManager().registerEvents(this, APIPlugin.getInstance());

@@ -20,9 +20,9 @@ import java.util.Map;
  * along with SamaGamesCore.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class Multiplier {
-    private int globalAmount;
     private final long endTime;
     private final Map<String, Integer> combinedData = new HashMap<>();
+    private int globalAmount;
     private String message;
 
     public Multiplier(int globalAmount, long endTime, String message) {

@@ -23,9 +23,8 @@ import java.util.UUID;
  */
 public class Party implements IParty {
     private final UUID party;
-    private UUID leader;
-
     private final List<UUID> players;
+    private UUID leader;
 
     public Party(UUID party, UUID leader, List<UUID> players) {
         this.party = party;

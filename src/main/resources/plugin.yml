@@ -1,30 +1,30 @@
 name: SamaGamesAPI
 main: net.samagames.core.APIPlugin
 version: 5.0.0
-authors: [geekpower14]
+authors: [ geekpower14 ]
 website: http://samagames.net/
 load: STARTUP
-depend: [API, ViaVersion]
+depend: [ API, ViaVersion ]
 
 commands:
-   start:
-     description: Démarre le jeu
-     usage: /start
-   bukkitrefresh:
-     description: Recharge les permissions locales
-     usage: /bukkitrefresh
-   lag:
-     description: Donne des informations sur le serveur actuel et sur les latences
-     usage: /lag
-   bukkitdebug:
-     description: Renvoie les playerdata d'un joueur
-     usage: /playerdata <pseudo>
-   inv:
-     description: Voir l'inventaire d'un joueur
-     usage: /inv <pseudo>
-   speakup:
-     description: Ecrire un message au titre de la modération sur le serveur
-     usage: /speakup <message>
-   anticheatreport:
-     description: Commande de signalement de joueurs par NoCheatPlus
-     usage: /anticheatreport <cheat> <pseudo>
+  start:
+    description: Démarre le jeu
+    usage: /start
+  bukkitrefresh:
+    description: Recharge les permissions locales
+    usage: /bukkitrefresh
+  lag:
+    description: Donne des informations sur le serveur actuel et sur les latences
+    usage: /lag
+  bukkitdebug:
+    description: Renvoie les playerdata d'un joueur
+    usage: /playerdata <pseudo>
+  inv:
+    description: Voir l'inventaire d'un joueur
+    usage: /inv <pseudo>
+  speakup:
+    description: Ecrire un message au titre de la modération sur le serveur
+    usage: /speakup <message>
+  anticheatreport:
+    description: Commande de signalement de joueurs par NoCheatPlus
+    usage: /anticheatreport <cheat> <pseudo>

@@ -27,8 +27,8 @@ import java.util.logging.Level;
  */
 public class DatabaseConnector {
     private final APIPlugin plugin;
-    private JedisPool cachePool;
     private final RedisServer bungee;
+    private JedisPool cachePool;
     private WhiteListRefreshTask keeper;
 
     public DatabaseConnector(APIPlugin plugin, RedisServer bungee) {

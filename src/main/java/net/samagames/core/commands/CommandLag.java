@@ -35,8 +35,6 @@ public class CommandLag extends AbstractCommand {
     private static Field recentTpsField;
     private static Field pingField;
 
-    private final SimpleDateFormat dateFormat;
-
     static {
         try {
             Class<?> minecraftServerClass = Reflection.getNMSClass("MinecraftServer");
@@ -49,6 +47,8 @@ public class CommandLag extends AbstractCommand {
             e.printStackTrace();
         }
     }
+
+    private final SimpleDateFormat dateFormat;
 
     public CommandLag(APIPlugin plugin) {
         super(plugin);
