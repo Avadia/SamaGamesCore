@@ -25,6 +25,9 @@ repositories {
     mavenCentral()
     mavenLocal()
     maven {
+        url "http://maven.elmakers.com/repository/"
+    }
+    maven {
         url = "https://papermc.io/repo/repository/maven-public/"
     }
     maven {
